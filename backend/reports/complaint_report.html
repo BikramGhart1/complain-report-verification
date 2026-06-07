@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  /* ── Reset ── */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  /* ── Page ── */
+  @page {
+    size: A4;
+    margin: 18mm 16mm 20mm 16mm;
+    @top-center {
+      content: "CONFIDENTIAL — Crime Portal Report";
+      font-family: Arial, sans-serif;
+      font-size: 8pt;
+      color: #888;
+    }
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-family: Arial, sans-serif;
+      font-size: 8pt;
+      color: #aaa;
+    }
+  }
+
+  body {
+    font-family: Arial, sans-serif;
+    font-size: 10pt;
+    color: #1a1a1a;
+    line-height: 1.5;
+  }
+
+  /* ── Header ── */
+  .doc-title   { font-size: 22pt; font-weight: bold; margin-bottom: 4pt; }
+  .doc-meta    { font-size: 9pt; color: #555; margin-bottom: 12pt; }
+  .doc-meta span { margin-right: 14pt; }
+  .doc-meta .highlight { color: #c0392b; font-weight: bold; }
+  hr.divider   { border: none; border-top: 2px solid #1a1a1a; margin-bottom: 18pt; }
+
+  /* ── Section heading ── */
+  .section-heading {
+    font-size: 11pt;
+    font-weight: bold;
+    border-left: 4px solid #2c3e50;
+    padding-left: 8pt;
+    margin: 18pt 0 10pt 0;
+    color: #2c3e50;
+  }
+
+  /* ── Data table (all field/value pairs) ── */
+  /* WeasyPrint renders tables reliably — no flex, no grid */
+  table.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 6pt;
+  }
+  table.data-table td {
+    padding: 4pt 6pt;
+    vertical-align: top;
+    font-size: 10pt;
+  }
+  table.data-table td.label {
+    width: 38%;
+    color: #555;
+    font-weight: normal;
+  }
+  table.data-table td.value {
+    width: 62%;
+    color: #1a1a1a;
+    font-weight: bold;
+  }
+
+  /* ── Status badge ── */
+  .badge {
+    display: inline-block;
+    padding: 2pt 8pt;
+    border-radius: 3pt;
+    font-size: 9pt;
+    font-weight: bold;
+  }
+  .badge-pending   { background: #fef3c7; color: #92400e; }
+  .badge-ongoing   { background: #dbeafe; color: #1e40af; }
+  .badge-on_hold   { background: #f3e8ff; color: #6b21a8; }
+  .badge-completed { background: #dcfce7; color: #166534; }
+  .badge-failed    { background: #fee2e2; color: #991b1b; }
+
+  /* ── Description box ── */
+  .description-box {
+    border: 1px solid #ddd;
+    border-radius: 4pt;
+    padding: 10pt;
+    font-size: 10pt;
+    color: #333;
+    margin-bottom: 8pt;
+  }
+
+  /* ── Tags ── */
+  .tag {
+    display: inline-block;
+    padding: 2pt 7pt;
+    border-radius: 10pt;
+    font-size: 8pt;
+    font-weight: bold;
+    margin-right: 4pt;
+    color: #fff;
+  }
+
+  /* ── AI Analysis box ── */
+  .ai-box {
+    border: 1px solid #c8d6e5;
+    border-radius: 4pt;
+    background: #f8fafc;
+    padding: 12pt;
+    margin-bottom: 12pt;
+  }
+  .ai-verdict-fake          { color: #c0392b; font-weight: bold; }
+  .ai-verdict-likely_manipulated { color: #e67e22; font-weight: bold; }
+  .ai-verdict-authentic     { color: #27ae60; font-weight: bold; }
+  .ai-verdict-inconclusive  { color: #7f8c8d; font-weight: bold; }
+
+  /* ── Image pair — table layout, WeasyPrint safe ── */
+  table.image-pair {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 8pt 0;
+    margin-top: 10pt;
+  }
+  table.image-pair td {
+    width: 50%;
+    vertical-align: top;
+    text-align: center;
+  }
+  table.image-pair img {
+    max-width: 100%;
+    max-height: 160pt;
+    border: 1px solid #ddd;
+    border-radius: 3pt;
+  }
+  table.image-pair .img-caption {
+    font-size: 8pt;
+    color: #777;
+    margin-top: 4pt;
+  }
+
+  /* ── Comments ── */
+  .comment-block {
+    border-left: 3px solid #bdc3c7;
+    padding: 6pt 10pt;
+    margin-bottom: 8pt;
+    background: #fafafa;
+  }
+  .comment-block.admin-note {
+    border-left-color: #2980b9;
+    background: #f0f7ff;
+  }
+  .comment-meta {
+    font-size: 8pt;
+    color: #888;
+    margin-bottom: 3pt;
+  }
+
+  /* ── Footer ── */
+  .footer-note {
+    margin-top: 30pt;
+    font-size: 8pt;
+    color: #aaa;
+    border-top: 1px solid #eee;
+    padding-top: 8pt;
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<div class="doc-title">Crime Complaint Report</div>
+<div class="doc-meta">
+  <span>Case #{{ complaint.pk }}</span>
+  <span>|</span>
+  <span>Generated: <span class="highlight">{{ report.created_at|date:"d M Y, H:i" }}</span></span>
+  <span>|</span>
+  <span>Investigator: {{ report.generated_by.full_name|default:"—" }}</span>
+</div>
+<hr class="divider">
+
+
+<!-- ══ CASE OVERVIEW ══ -->
+<div class="section-heading">Case Overview</div>
+<table class="data-table">
+  <tr>
+    <td class="label">Status</td>
+    <td class="value">
+      <span class="badge badge-{{ complaint.status }}">{{ complaint.get_status_display }}</span>
+    </td>
+  </tr>
+  <tr>
+    <td class="label">Filed</td>
+    <td class="value">{{ complaint.created_at|date:"d M Y, H:i" }}</td>
+  </tr>
+  <tr>
+    <td class="label">Last Updated</td>
+    <td class="value">{{ complaint.modified_at|date:"d M Y, H:i" }}</td>
+  </tr>
+  {% if complaint.tags.all %}
+  <tr>
+    <td class="label">Tags</td>
+    <td class="value">
+      {% for tag in complaint.tags.all %}
+        <span class="tag" style="background-color: {{ tag.color_hex }};">{{ tag.name }}</span>
+      {% endfor %}
+    </td>
+  </tr>
+  {% endif %}
+</table>
+
+
+<!-- ══ COMPLAINANT INFORMATION ══ -->
+<div class="section-heading">Complainant Information</div>
+<table class="data-table">
+  {% if not complaint.is_anonymous %}
+  <tr>
+    <td class="label">Full Name</td>
+    <td class="value">{{ complaint.user.full_name }}</td>
+  </tr>
+  <tr>
+    <td class="label">Email</td>
+    <td class="value">{{ complaint.user.email }}</td>
+  </tr>
+  <tr>
+    <td class="label">Phone Number</td>
+    <td class="value">{{ complaint.user.phone_number|default:"—" }}</td>
+  </tr>
+  <tr>
+    <td class="label">Gender</td>
+    <td class="value">{{ complaint.user.get_gender_display|default:"—" }}</td>
+  </tr>
+  <tr>
+    <td class="label">Citizenship No.</td>
+    <td class="value">{{ complaint.user.citizenship_number }}</td>
+  </tr>
+  {% else %}
+  <tr>
+    <td class="label">Identity</td>
+    <td class="value" style="color:#888; font-style:italic;">Anonymous Submission</td>
+  </tr>
+  {% endif %}
+</table>
+
+
+<!-- ══ INCIDENT DETAILS ══ -->
+<div class="section-heading">Incident Details</div>
+<table class="data-table">
+  <tr>
+    <td class="label">Title</td>
+    <td class="value">{{ complaint.title }}</td>
+  </tr>
+  {% if complaint.incident_date %}
+  <tr>
+    <td class="label">Incident Date</td>
+    <td class="value">{{ complaint.incident_date|date:"d M Y" }}</td>
+  </tr>
+  {% endif %}
+  <tr>
+    <td class="label">Crime Location / Platform</td>
+    <td class="value">{{ complaint.crime_location|default:"—" }}</td>
+  </tr>
+  {% if complaint.perpetrator_name %}
+  <tr>
+    <td class="label">Alleged Perpetrator</td>
+    <td class="value">{{ complaint.perpetrator_name }}</td>
+  </tr>
+  {% endif %}
+  {% if complaint.victim_name %}
+  <tr>
+    <td class="label">Victim Name</td>
+    <td class="value">{{ complaint.victim_name }}</td>
+  </tr>
+  {% endif %}
+  {% if complaint.victim_phone_number %}
+  <tr>
+    <td class="label">Victim Phone</td>
+    <td class="value">{{ complaint.victim_phone_number }}</td>
+  </tr>
+  {% endif %}
+  <tr>
+    <td class="label">Self-Accused</td>
+    <td class="value">{{ complaint.is_self_accused|yesno:"Yes,No" }}</td>
+  </tr>
+</table>
+
+
+<!-- ══ COMPLAINT DESCRIPTION ══ -->
+<div class="section-heading">Complaint Description</div>
+<div class="description-box">{{ complaint.description }}</div>
+
+
+<!-- ══ AI IMAGE ANALYSIS ══ -->
+{% if complaint.ai_model_version %}
+<div class="section-heading">AI Image Analysis</div>
+<div class="ai-box">
+  <table class="data-table">
+    <tr>
+      <td class="label">AI Verdict</td>
+      <td class="value">
+        <span class="ai-verdict-{{ complaint.ai_verdict }}">
+          {{ complaint.get_ai_verdict_display|default:"—" }}
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td class="label">Confidence Score</td>
+      <td class="value">{{ complaint.ai_confidence|floatformat:1 }}%</td>
+    </tr>
+    <tr>
+      <td class="label">LBP Score</td>
+      <td class="value">{{ complaint.ai_lbp_score|floatformat:2|default:"—" }}</td>
+    </tr>
+    <tr>
+      <td class="label">Recommended Decision</td>
+      <td class="value">{{ complaint.get_ai_recommended_decision_display|default:"—" }}</td>
+    </tr>
+    <tr>
+      <td class="label">Model Version</td>
+      <td class="value">{{ complaint.ai_model_version }}</td>
+    </tr>
+    <tr>
+      <td class="label">AI Flagged</td>
+      <td class="value">{{ complaint.ai_flagged|yesno:"Yes,No,Pending" }}</td>
+    </tr>
+  </table>
+  {% endif %}
+
+  {% if evidence_url or heatmap_url %}
+  <table class="image-pair">
+    <tr>
+      {% if evidence_url %}
+      <td>
+        <img src="{{ evidence_url }}" alt="Evidence image">
+        <div class="img-caption">Left: submitted evidence</div>
+      </td>
+      {% endif %}
+      {% if heatmap_url %}
+      <td>
+        <img src="{{ heatmap_url }}" alt="AI heatmap">
+        <div class="img-caption">Right: AI attention heatmap</div>
+      </td>
+      {% endif %}
+    </tr>
+  </table>
+  {% endif %}
+
+
+<!-- ══ INVESTIGATOR COMMENTS ══ -->
+{% if comments %}
+<div class="section-heading">Investigator Comments</div>
+{% for comment in comments %}
+<div class="comment-block {% if comment.is_admin_note %}admin-note{% endif %}">
+  <div class="comment-meta">
+    {{ comment.author.full_name }} — {{ comment.created_at|date:"d M Y, H:i" }}
+    {% if comment.is_admin_note %} · <strong>Admin Note</strong>{% endif %}
+  </div>
+  <div>{{ comment.body }}</div>
+</div>
+{% endfor %}
+{% endif %}
+
+
+<!-- ══ FOOTER ══ -->
+<div class="footer-note">
+  This report is confidential and intended solely for authorised investigative use.
+  Unauthorised disclosure is prohibited. Generated by Crime Portal v1.0.
+</div>
+
+</body>
+</html>
