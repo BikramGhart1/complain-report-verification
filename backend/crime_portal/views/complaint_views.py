@@ -1,0 +1,119 @@
+from rest_framework import generics, permissions
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.shortcuts import get_object_or_404
+from crime_portal.permissions import IsAdmin, IsOwnerOrAdmin
+from crime_portal.models import CrimeTag, Complaint
+from crime_portal.serializers.complaint_serializer import (
+    CrimeTagSerializer,
+    ComplaintListSerializer,
+    ComplaintDetailSerializer,
+    ComplaintStatusUpdateSerializer,
+    AdminCommentSerializer,
+)
+
+
+
+class CrimeTagListCreateView(generics.ListCreateAPIView):
+    queryset = CrimeTag.objects.all().order_by("name")
+    serializer_class = CrimeTagSerializer
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [permissions.IsAuthenticated()]
+        return [IsAdmin()]
+
+
+class CrimeTagDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = CrimeTag.objects.all()
+    serializer_class = CrimeTagSerializer
+    permission_classes = [IsAdmin]
+
+
+class ComplaintListCreateView(generics.ListCreateAPIView):
+    """
+    GET  /complaints/        → list own complaints (admin sees all)
+    POST /complaints/        → file a new complaint
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return ComplaintListSerializer
+        return ComplaintDetailSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        qs = Complaint.objects.select_related("user").prefetch_related("tags", "comments")
+        if user.is_admin:
+            return qs.all()
+        return qs.filter(user=user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class ComplaintDetailView(generics.RetrieveUpdateAPIView):
+    """
+    GET   /complaints/<id>/  → full detail (owner or admin)
+    PATCH /complaints/<id>/  → edit complaint (owner or admin)
+    """
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrAdmin]
+    parser_classes = [MultiPartParser, FormParser]
+    serializer_class = ComplaintDetailSerializer
+
+    def get_queryset(self):
+        return Complaint.objects.prefetch_related("tags", "comments__author")
+
+    def get_object(self):
+        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+
+class FlaggedComplaintListView(generics.ListAPIView):
+    """
+    GET /complaints/flagged/  → all AI-flagged, pending-review complaints
+    """
+    permission_classes = [IsAdmin]
+    serializer_class = ComplaintListSerializer
+
+    def get_queryset(self):
+        return (
+            Complaint.objects
+            .filter(ai_flagged=True, status=Complaint.Status.PENDING)
+            .select_related("user")
+            .prefetch_related("tags")
+            .order_by("-created_at")
+        )
+
+
+class ComplaintStatusUpdateView(generics.UpdateAPIView):
+    """
+    PATCH /complaints/<id>/status/  → admin updates complaint status
+    """
+    permission_classes = [IsAdmin]
+    serializer_class = ComplaintStatusUpdateSerializer
+    queryset = Complaint.objects.all()
+    http_method_names = ["patch"]
+
+
+class ComplaintCommentCreateView(generics.CreateAPIView):
+    """
+    POST /complaints/<id>/comments/
+    Users add evidence/updates; admin adds notes (is_admin_note auto-set)
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = AdminCommentSerializer
+
+    def perform_create(self, serializer):
+        complaint = get_object_or_404(Complaint, pk=self.kwargs["pk"])
+        if not (self.request.user.is_admin or complaint.user == self.request.user):
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("You can only comment on your own complaints.")
+        serializer.save(
+            complaint=complaint,
+            author=self.request.user,
+            is_admin_note=self.request.user.is_admin,
+        )
+
