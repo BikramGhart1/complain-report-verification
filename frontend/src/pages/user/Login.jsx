@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, data } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../../features/auth/authSlice";
-// import { loginUser } from '../../services/authService';
-import { getProfile, loginUser } from "../../services/authService";
+import { loginUser } from "../../services/authService";
 import { toast } from "react-toastify";
+import useErrors from "../../hooks/useErrors";
+import { loginValidationSchema } from "../../form_validations/authValidationSchema";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -12,12 +13,21 @@ export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [showPw, setShowPw] = useState(false);
+  const { errors, resetErrors, validateForm, clearFieldError } = useErrors();
 
-  const handleChange = (e) =>
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    clearFieldError(name);
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e?.preventDefault();
+    resetErrors();
+
+    const isValid = await validateForm(loginValidationSchema, form);
+    if (!isValid) return;
+
     setLoading(true);
     try {
       const data = await loginUser({
@@ -38,7 +48,6 @@ export default function Login() {
   };
   return (
     <div className="auth-page">
-      {/* Brand bar */}
       <div className="auth-brand">
         <div className="auth-brand-icon">
           <i className="ti ti-shield-check" />
@@ -50,59 +59,61 @@ export default function Login() {
       </div>
 
       <div className="auth-center">
-        {/* Header */}
         <div className="auth-header">
           <h1 className="auth-title">Welcome Back</h1>
           <p className="auth-subtitle">Login to securely access the system</p>
         </div>
 
-        {/* Card */}
         <div className="card auth-card">
           <div className="card-header">
             <i className="ti ti-user-circle me-2" />
             Account Information
           </div>
           <div className="card-body p-4">
-            <form onSubmit={handleSubmit}>
-              <div className="row g-3">
-                <div className="col-md-6">
-                  <label className="form-label">Email Address</label>
+            <div className="row g-3">
+              <div className="col-md-6">
+                <label className="form-label">Email Address</label>
+                <input
+                  type="email"
+                  name="email"
+                  className={`form-control ${errors.email ? "is-invalid" : ""}`}
+                  placeholder="example@gmail.com"
+                  value={form.email}
+                  onChange={handleChange}
+                  required
+                  autoComplete="email"
+                />
+                {errors.email && (
+                  <div className="invalid-feedback">{errors.email}</div>
+                )}
+              </div>
+              <div className="col-md-6">
+                <label className="form-label">Password</label>
+                <div className="input-group">
                   <input
-                    type="email"
-                    name="email"
-                    className="form-control"
-                    placeholder="example@gmail.com"
-                    value={form.email}
+                    type={showPw ? "text" : "password"}
+                    name="password"
+                    className={`form-control ${errors.password ? "is-invalid" : ""}`}
+                    placeholder="••••••••"
+                    value={form.password}
                     onChange={handleChange}
                     required
-                    autoComplete="email"
+                    autoComplete="current-password"
                   />
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label">Password</label>
-                  <div className="input-group">
-                    <input
-                      type={showPw ? "text" : "password"}
-                      name="password"
-                      className="form-control"
-                      placeholder="••••••••"
-                      value={form.password}
-                      onChange={handleChange}
-                      required
-                      autoComplete="current-password"
-                    />
-                    <button
-                      type="button"
-                      className="input-group-text auth-pw-toggle"
-                      onClick={() => setShowPw((v) => !v)}
-                      tabIndex={-1}
-                    >
-                      <i className={`ti ${showPw ? "ti-eye-off" : "ti-eye"}`} />
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    className="input-group-text auth-pw-toggle"
+                    onClick={() => setShowPw((v) => !v)}
+                    tabIndex={-1}
+                  >
+                    <i className={`ti ${showPw ? "ti-eye-off" : "ti-eye"}`} />
+                  </button>
+                  {errors.password && (
+                    <div className="invalid-feedback">{errors.password}</div>
+                  )}
                 </div>
               </div>
-            </form>
+            </div>
           </div>
         </div>
 

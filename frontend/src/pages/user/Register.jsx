@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../../features/auth/authSlice";
-// import { registerUser } from '../../services/authService';
 import { registerUser } from "../../services/authService";
 
 import { toast } from "react-toastify";
+import useErrors from "../../hooks/useErrors";
+import { registerValidationSchema } from "../../form_validations/authValidationSchema";
 
 const INITIAL = {
   firstName: "",
@@ -26,32 +27,36 @@ export default function Register() {
   const [form, setForm] = useState(INITIAL);
   const [loading, setLoading] = useState(false);
   const [showPw, setShowPw] = useState(false);
+  const { errors, resetErrors, validateForm, clearFieldError } = useErrors();
 
-  const handleChange = (e) =>
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    clearFieldError(name);
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (form.password !== form.confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
+    e?.preventDefault();
+    resetErrors();
+
+    const isValid = await validateForm(registerValidationSchema, form);
+    if (!isValid) return;
+
     setLoading(true);
-    const formData = new FormData();
-    formData.append("email", form.email);
-    formData.append("password", form.password);
-    formData.append("first_name", form.firstName);
-    formData.append("middle_name", form.middleName ?? "");
-    formData.append("last_name", form.lastName);
-    formData.append("citizenship_number", form.citizenshipNumber);
-    formData.append("gender", form.gender);
-    formData.append("phone_number", form.phone);
     try {
-      console.log("form register: ", formData);
-      const data = await registerUser(formData);
-      dispatch(setCredentials(data));
-      toast.success("Account created successfully!");
-      navigate("/dashboard", { replace: true });
+      const formData = new FormData();
+      formData.append("email", form.email);
+      formData.append("password", form.password);
+      formData.append("first_name", form.firstName);
+      formData.append("middle_name", form.middleName ?? "");
+      formData.append("last_name", form.lastName);
+      formData.append("citizenship_number", form.citizenshipNumber);
+      formData.append("gender", form.gender);
+      formData.append("phone_number", form.phone);
+
+      await registerUser(formData);
+      toast.success("Account created! Please log in.");
+      navigate("/login", { replace: true });
     } catch (err) {
       toast.error(err.message || "Registration failed");
     } finally {
@@ -61,7 +66,6 @@ export default function Register() {
 
   return (
     <div className="auth-page">
-      {/* Brand bar */}
       <div className="auth-brand">
         <div className="auth-brand-icon">
           <i className="ti ti-shield-check" />
@@ -87,7 +91,6 @@ export default function Register() {
             gap: "1rem",
           }}
         >
-          {/* Personal Information */}
           <div className="card">
             <div className="card-header">
               <i className="ti ti-user me-2" />
@@ -96,42 +99,51 @@ export default function Register() {
             <div className="card-body p-4">
               <div className="row g-3">
                 <div className="col-md-4">
-                  <label className="form-label">First Name</label>
+                  <label className="form-label">First Name <span className="text-danger">*</span> </label>
                   <input
                     name="firstName"
-                    className="form-control"
+                    className={`form-control ${errors.firstName ? "is-invalid" : ""}`}
                     value={form.firstName}
                     onChange={handleChange}
                     required
                   />
+                  {errors.firstName && (
+                    <div className="invalid-feedback">{errors.firstName}</div>
+                  )}
                 </div>
                 <div className="col-md-4">
                   <label className="form-label">Middle Name</label>
                   <input
                     name="middleName"
-                    className="form-control"
+                    className={`form-control ${errors.middleName ? "is-invalid" : ""}`}
                     value={form.middleName}
                     onChange={handleChange}
                   />
+                  {errors.middleName && (
+                    <div className="invalid-feedback">{errors.middleName}</div>
+                  )}
                 </div>
                 <div className="col-md-4">
-                  <label className="form-label">Last Name</label>
+                  <label className="form-label">Last Name <span className="text-danger">*</span></label>
                   <input
                     name="lastName"
-                    className="form-control"
+                    className={`form-control ${errors.lastName ? "is-invalid" : ""}`}
                     value={form.lastName}
                     onChange={handleChange}
                     required
                   />
+                  {errors.lastName && (
+                    <div className="invalid-feedback">{errors.lastName}</div>
+                  )}
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label d-block">Gender</label>
+                  <label className="form-label d-block">Gender <span className="text-danger">*</span></label>
                   <div className="d-flex gap-4">
                     {["Male", "Female", "Other"].map((g) => (
                       <div className="form-check" key={g}>
                         <input
-                          className="form-check-input"
+                          className={`form-check-input ${errors.gender ? "is-invalid" : ""}`}
                           type="radio"
                           name="gender"
                           id={`gender-${g}`}
@@ -148,23 +160,32 @@ export default function Register() {
                       </div>
                     ))}
                   </div>
+                  {errors.gender && (
+                    <div className="invalid-feedback d-block">
+                      {errors.gender}
+                    </div>
+                  )}
                 </div>
 
                 <div className="col-md-6">
-                  <label className="form-label">Permanent Address</label>
+                  <label className="form-label">Permanent Address <span className="text-danger">*</span></label>
                   <input
                     name="permanentAddress"
-                    className="form-control"
+                    className={`form-control ${errors.permanentAddress ? "is-invalid" : ""}`}
                     value={form.permanentAddress}
                     onChange={handleChange}
                     required
                   />
+                  {errors.permanentAddress && (
+                    <div className="invalid-feedback">
+                      {errors.permanentAddress}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Contact Information */}
           <div className="card">
             <div className="card-header">
               <i className="ti ti-address-book me-2" />
@@ -173,35 +194,40 @@ export default function Register() {
             <div className="card-body p-4">
               <div className="row g-3">
                 <div className="col-md-6">
-                  <label className="form-label">Email Address</label>
+                  <label className="form-label">Email Address <span className="text-danger">*</span></label>
                   <input
                     type="email"
                     name="email"
-                    className="form-control"
+                    className={`form-control ${errors.email ? "is-invalid" : ""}`}
                     placeholder="example@gmail.com"
                     value={form.email}
                     onChange={handleChange}
                     required
                     autoComplete="email"
                   />
+                  {errors.email && (
+                    <div className="invalid-feedback">{errors.email}</div>
+                  )}
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label">Phone Number</label>
+                  <label className="form-label">Phone Number <span className="text-danger">*</span></label>
                   <input
                     type="tel"
                     name="phone"
-                    className="form-control"
+                    className={`form-control ${errors.phone ? "is-invalid" : ""}`}
                     placeholder="98XXXXXXXX"
                     value={form.phone}
                     onChange={handleChange}
                     required
                   />
+                  {errors.phone && (
+                    <div className="invalid-feedback">{errors.phone}</div>
+                  )}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Account Information */}
           <div className="card">
             <div className="card-header">
               <i className="ti ti-lock me-2" />
@@ -210,26 +236,31 @@ export default function Register() {
             <div className="card-body p-4">
               <div className="row g-3">
                 <div className="col-md-6">
-                  <label className="form-label">Citizenship Number</label>
+                  <label className="form-label">Citizenship Number <span className="text-danger">*</span></label>
                   <input
                     name="citizenshipNumber"
-                    className="form-control"
+                    className={`form-control ${errors.citizenshipNumber ? "is-invalid" : ""}`}
                     placeholder="XX-XX-XX-XXXXX"
                     value={form.citizenshipNumber}
                     onChange={handleChange}
                     required
                   />
+                  {errors.citizenshipNumber && (
+                    <div className="invalid-feedback">
+                      {errors.citizenshipNumber}
+                    </div>
+                  )}
                 </div>
 
                 <div className="col-12" />
 
                 <div className="col-md-6">
-                  <label className="form-label">Password</label>
+                  <label className="form-label">Password <span className="text-danger">*</span></label>
                   <div className="input-group">
                     <input
                       type={showPw ? "text" : "password"}
                       name="password"
-                      className="form-control"
+                      className={`form-control ${errors.password ? "is-invalid" : ""}`}
                       placeholder="••••••••"
                       value={form.password}
                       onChange={handleChange}
@@ -244,27 +275,34 @@ export default function Register() {
                     >
                       <i className={`ti ${showPw ? "ti-eye-off" : "ti-eye"}`} />
                     </button>
+                    {errors.password && (
+                      <div className="invalid-feedback">{errors.password}</div>
+                    )}
                   </div>
                 </div>
 
                 <div className="col-md-6">
-                  <label className="form-label">Confirm Password</label>
+                  <label className="form-label">Confirm Password <span className="text-danger">*</span></label>
                   <input
                     type="password"
                     name="confirmPassword"
-                    className="form-control"
+                    className={`form-control ${errors.confirmPassword ? "is-invalid" : ""}`}
                     placeholder="••••••••"
                     value={form.confirmPassword}
                     onChange={handleChange}
                     required
                     autoComplete="new-password"
                   />
+                  {errors.confirmPassword && (
+                    <div className="invalid-feedback">
+                      {errors.confirmPassword}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Actions */}
           <div className="auth-actions">
             <button
               className="btn auth-btn-primary"

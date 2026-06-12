@@ -74,7 +74,7 @@ export const getAdminComplaints = async ({
   if (fromDate) params.append('fromDate', fromDate);
   if (toDate)   params.append('toDate', toDate);
   if (search)   params.append('search', search);
-  const { data } = await axiosInstance.get(`/admin/complaints?${params}/`);
+  const { data } = await axiosInstance.get(`/complaints?${params}/`);
   // Expected: { complaints: [...], total, page, limit }
   return data;
 };

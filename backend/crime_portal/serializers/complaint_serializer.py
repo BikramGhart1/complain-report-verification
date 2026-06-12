@@ -84,6 +84,9 @@ class ComplaintDetailSerializer(serializers.ModelSerializer):
             "ai_is_fake",
             "ai_heatmap_url",
             "ai_model_version",
+            "ai_lbp_score",
+            "ai_verdict",
+            "ai_recommended_decision",
 
             "filed_by",
             "created_at",

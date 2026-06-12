@@ -15,7 +15,7 @@ const STATUS_BADGE = {
   approved: "badge-approved",
 };
 
-const STATUS_STEPS = ["pending", "under_review", "forwarded", "approved"];
+const STATUS_STEPS = ["pending", "under_review", "approved"];
 
 const InfoRow = ({ label, value }) => (
   <div
@@ -302,12 +302,12 @@ export default function ComplaintTracking() {
               <InfoRow
                 label="Incident Date"
                 value={
-                  c.incidentDate
+                  c.incident_date
                     ? new Date(c.incident_date).toLocaleDateString()
                     : null
                 }
               />
-              <InfoRow label="Platform" value={c.suspectPlatform} />
+              <InfoRow label="Platform" value={c.crime_location} />
               <div className="pt-2">
                 <small style={{ color: "var(--color-text-secondary)" }}>
                   Description
@@ -450,35 +450,35 @@ export default function ComplaintTracking() {
               AI Analysis Results
             </div>
             <div className="card-body">
-              {c.aiAnalysis ? (
+              {c.ai_confidence ? (
                 <>
                   <InfoRow
                     label="Verdict"
                     value={
                       <span
                         className={`badge ${
-                          c.aiAnalysis.verdict === "Likely Manipulated"
+                          c.ai_verdict === "Likely Manipulated"
                             ? "badge-rejected"
                             : "badge-approved"
                         }`}
                       >
-                        {c.aiAnalysis.verdict}
+                        {c?.ai_verdict}
                       </span>
                     }
                   />
                   <InfoRow
                     label="Confidence Score"
                     value={
-                      c.aiAnalysis.confidenceScore
-                        ? `${c.aiAnalysis.confidenceScore}%`
+                      c.ai_confidence
+                        ? `${c.ai_confidence}%`
                         : null
                     }
                   />
-                  <InfoRow label="LBP Score" value={c.aiAnalysis.lbpScore} />
-                  <InfoRow
+                  <InfoRow label="LBP Score" value={c.ai_lbp_score} />
+                  {/* <InfoRow
                     label="Recommendation"
-                    value={c.aiAnalysis.recommendedDecision}
-                  />
+                    value={c.ai_recommended_decision}
+                  /> */}
                 </>
               ) : (
                 <span
