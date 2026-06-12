@@ -53,7 +53,7 @@ export default function Login() {
           <i className="ti ti-shield-check" />
         </div>
         <div>
-          <div className="auth-brand-name">CCRS Nepal</div>
+          <div className="auth-brand-name">AI Based</div>
           <div className="auth-brand-sub">Cybercrime Reporting System</div>
         </div>
       </div>

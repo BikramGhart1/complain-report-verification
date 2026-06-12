@@ -105,9 +105,9 @@ axiosInstance.interceptors.response.use(
       error.response?.data?.detail ||
       error.response?.data?.message ||
       error.response?.data?.error ||
-      // (error.response?.data && typeof error.response.data === "object"
-      //   ? Object.values(error.response.data).flat().join(", ")
-      //   : null) ||
+      (error.response?.data && typeof error.response.data === "object"
+        ? Object.values(error.response.data).flat().join(", ")
+        : null) ||
       error.message ||
       "Something went wrong";
 

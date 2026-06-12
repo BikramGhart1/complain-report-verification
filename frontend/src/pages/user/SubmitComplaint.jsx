@@ -64,6 +64,7 @@ export default function SubmitComplaint() {
       ...(name === "isVictim" && checked
         ? {
             victimFirstName: user?.firstName ?? "",
+            victimMiddleName: user?.middleName ?? "",
             victimLastName: user?.lastName ?? "",
             victimPhone: user?.phone ?? "",
             relationToVictim: "Self",

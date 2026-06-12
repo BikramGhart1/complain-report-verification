@@ -63,9 +63,9 @@ const Sidebar = ({ role = "user", complaintCount }) => {
               color: "var(--color-text-primary)",
             }}
           >
-            AI Cybercrime
+            AI Based 
             <br />
-            Reporting System
+            Cybercrime Reporting System
           </div>
           <div
             style={{

@@ -1,15 +1,11 @@
 import axios from 'axios';
 import axiosInstance from '../api/axiosInstance';
 
-// ── AUTH ──────────────────────────────────────────────────────────────────────
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
 
 export const loginUser = async ({ email, password }) => {
   const { data } = await axiosInstance.post('/auth/login/', { email, password });
-  // data = { access, refresh }
 
-
-  // fetch user with the new token directly
   const userRes = await axios.get(`${BASE_URL}/auth/me/`, {
     headers: { Authorization: `Bearer ${data.access}` },
   });
@@ -53,7 +49,6 @@ export const refreshTokens = async (refreshToken) => {
   return data; // { accessToken, refreshToken? }
 };
 
-// ── USER ──────────────────────────────────────────────────────────────────────
 export const getProfile = async (token = null) => {
   const config = token
     ? { headers: { Authorization: `Bearer ${token}` } }

@@ -1,40 +1,45 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { selectIsAuthenticated, selectUserRole } from '../../features/auth/authSlice';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import {
+  selectIsAuthenticated,
+  selectUserRole,
+} from "../../features/auth/authSlice";
 
 const STATS = [
-  { value: '10,000+', label: 'Cases resolved' },
-  { value: '99.2%',   label: 'AI accuracy rate' },
-  { value: '< 2 min', label: 'Avg. response time' },
+  { value: "10,000+", label: "Cases resolved" },
+  { value: "99.2%", label: "AI accuracy rate" },
+  { value: "< 2 min", label: "Avg. response time" },
 ];
 
 const FEATURES = [
   {
-    icon: 'ti-brain',
-    title: 'AI Evidence Analysis',
-    desc:  'Detects image manipulation using LBP scoring and neural networks.',
+    icon: "ti-brain",
+    title: "AI Evidence Analysis",
+    desc: "Detects image manipulation using LBP scoring and densenet121 model.",
   },
   {
-    icon: 'ti-lock',
-    title: 'Secure & Confidential',
-    desc:  'End-to-end encrypted submissions with optional identity protection.',
+    icon: "ti-lock",
+    title: "Secure & Confidential",
+    desc: "End-to-end encrypted submissions with optional identity protection.",
   },
   {
-    icon: 'ti-map-pin',
-    title: 'Real-Time Tracking',
-    desc:  'Track your case at every stage from submission to resolution.',
+    icon: "ti-map-pin",
+    title: "Real-Time Tracking",
+    desc: "Track your case at every stage from submission to resolution.",
   },
 ];
 
 const Hero = () => {
-  const navigate        = useNavigate();
+  const navigate = useNavigate();
   const isAuthenticated = useSelector(selectIsAuthenticated);
-  const role            = useSelector(selectUserRole);
+  const role = useSelector(selectUserRole);
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(role === 'admin' ? '/admin/dashboard' : '/dashboard', { replace: true });
+      navigate(role === "admin" ? "/admin/dashboard" : "/dashboard", {
+        replace: true,
+      });
     }
   }, [isAuthenticated, role, navigate]);
 
@@ -42,54 +47,62 @@ const Hero = () => {
 
   return (
     <div className="hero-root">
-
-      {/* ── Nav ── */}
       <nav className="hero-nav">
         <div className="hero-brand">
           <div className="hero-brand-icon">
             <i className="ti ti-shield-check" aria-hidden="true" />
           </div>
           <div>
-            <div className="hero-brand-name">CCRS Nepal</div>
+            <div className="hero-brand-name">AI Based</div>
             <div className="hero-brand-sub">Cybercrime Reporting System</div>
           </div>
         </div>
         <div className="hero-nav-actions">
-          <button className="hero-btn-ghost" onClick={() => navigate('/login')}>Sign in</button>
-          <button className="hero-btn-primary" onClick={() => navigate('/register')}>Register</button>
+          <button className="hero-btn-ghost" onClick={() => navigate("/login")}>
+            Sign in
+          </button>
+          <button
+            className="hero-btn-primary"
+            onClick={() => navigate("/register")}
+          >
+            Register
+          </button>
         </div>
       </nav>
 
       <div className="hero-body">
-
-        {/* ── Official badge ── */}
         <div className="hero-official-badge">
           <span className="hero-dot" />
-          GOVERNMENT OF NEPAL · OFFICIAL PORTAL
+          AI Based · Cybercrime Reporting System
         </div>
 
-        {/* ── Headline ── */}
         <h1 className="hero-title">
-          Nepal Cybercrime<br />Reporting Portal
+          Cybercrime Complaint
+          <br />
+          Reporting System
         </h1>
         <p className="hero-subtitle">
-          Submit cybercrime complaints securely. Our AI-assisted platform analyses
-          evidence and routes your case to the appropriate authority.
+          Submit cybercrime complaints securely. Our AI-assisted platform
+          analyses evidence and let's you track reports.
         </p>
 
-        {/* ── CTAs ── */}
         <div className="hero-ctas">
-          <button className="hero-btn-primary hero-btn-lg" onClick={() => navigate('/register')}>
+          <button
+            className="hero-btn-primary hero-btn-lg"
+            onClick={() => navigate("/register")}
+          >
             <i className="ti ti-file-plus" aria-hidden="true" />
             File a Complaint
           </button>
-          <button className="hero-btn-ghost hero-btn-lg" onClick={() => navigate('/login')}>
+          <button
+            className="hero-btn-ghost hero-btn-lg"
+            onClick={() => navigate("/login")}
+          >
             <i className="ti ti-search" aria-hidden="true" />
             Track Complaint
           </button>
         </div>
 
-        {/* ── Stats ── */}
         <div className="hero-stats">
           {STATS.map((s, i) => (
             <div key={i} className="hero-stat-card">
@@ -99,7 +112,6 @@ const Hero = () => {
           ))}
         </div>
 
-        {/* ── Features ── */}
         <div className="hero-divider" />
         <div className="hero-features">
           {FEATURES.map((f, i) => (
@@ -115,17 +127,12 @@ const Hero = () => {
           ))}
         </div>
 
-        {/* ── Footer ── */}
         <div className="hero-footer">
-          <span>© 2025 Cybercrime Investigation Bureau</span>
-          <span
-            className="hero-admin-link"
-            onClick={() => navigate('/login')}
-          >
+          <span>© 2025 BIT</span>
+          <span className="hero-admin-link" onClick={() => navigate("/login")}>
             Admin login →
           </span>
         </div>
-
       </div>
 
       <style>{`

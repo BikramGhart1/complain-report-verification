@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 const loadFromStorage = () => {
   try {
     return {
@@ -26,9 +25,6 @@ const clearStorage = () => {
   localStorage.removeItem('refreshToken');
 };
 
-// ── Thunk ─────────────────────────────────────────────────────────────────────
-// Since loadFromStorage is synchronous, this thunk is just a loading gate.
-// Later you can swap this for an actual /auth/me API call to validate the token.
 export const restoreSessionThunk = createAsyncThunk(
   'auth/restoreSession',
   async () => {
@@ -72,16 +68,15 @@ export const restoreSessionThunk = createAsyncThunk(
     return stored;
   }
 );
-// ── Initial state ─────────────────────────────────────────────────────────────
+
 const initialState = {
   user:         null,
   accessToken:  null,
   refreshToken: null,
-  loading:      true,  // start true so RootLayout waits before rendering routes
+  loading:      true,  
   error:        null,
 };
 
-// ── Slice ─────────────────────────────────────────────────────────────────────
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -129,7 +124,6 @@ const authSlice = createSlice({
         state.loading      = false;
       })
       .addCase(restoreSessionThunk.rejected, (state) => {
-        // Storage read failed — treat as logged out
         state.user         = null;
         state.accessToken  = null;
         state.refreshToken = null;
@@ -146,7 +140,6 @@ export const {
   setError,
 } = authSlice.actions;
 
-// ── Selectors ─────────────────────────────────────────────────────────────────
 export const selectCurrentUser     = (state) => state.auth.user;
 export const selectAccessToken     = (state) => state.auth.accessToken;
 export const selectIsAuthenticated = (state) => !!state.auth.accessToken && !!state.auth.user;
