@@ -105,7 +105,7 @@ export default function ComplaintTracking() {
               fontFamily: "var(--font-mono)",
             }}
           >
-            {c.title}
+            {c?.title}
           </small>
         </div>
         <div className="d-flex gap-2">
@@ -141,7 +141,7 @@ export default function ComplaintTracking() {
             {STATUS_STEPS.map((step, i) => {
               const done = i <= stepIndex;
               const current = i === stepIndex;
-              const rejected = c.status === "rejected";
+              const rejected = c?.status === "rejected";
               return (
                 <div
                   key={step}
@@ -206,8 +206,7 @@ export default function ComplaintTracking() {
             })}
           </div>
 
-          {/* Rejected banner */}
-          {c.status === "rejected" && (
+          {c?.status === "rejected" && (
             <div
               className="d-flex align-items-center gap-2 mt-3 p-2 rounded"
               style={{
@@ -224,7 +223,7 @@ export default function ComplaintTracking() {
                 {c.adminRemarks && (
                   <>
                     {" "}
-                    Reason: <strong>{c.adminRemarks}</strong>
+                    Reason: <strong>{c?.adminRemarks}</strong>
                   </>
                 )}
               </small>
@@ -235,7 +234,6 @@ export default function ComplaintTracking() {
 
       {/* ── Main grid ── */}
       <div className="row g-3 mb-3">
-        {/* Complaint Summary */}
         <div className="col-md-6">
           <div className="card h-100">
             <div className="card-header d-flex align-items-center gap-2">
@@ -263,7 +261,7 @@ export default function ComplaintTracking() {
                 label="Current Status"
                 value={
                   <span
-                    className={`badge ${STATUS_BADGE[c.status] ?? "badge-closed"}`}
+                    className={`badge ${STATUS_BADGE[c?.status] ?? "badge-closed"}`}
                   >
                     {c.status?.replace("_", " ")}
                   </span>
@@ -307,7 +305,7 @@ export default function ComplaintTracking() {
                     : null
                 }
               />
-              <InfoRow label="Platform" value={c.crime_location} />
+              <InfoRow label="Platform" value={c.suspect.crime_location} />
               <div className="pt-2">
                 <small style={{ color: "var(--color-text-secondary)" }}>
                   Description
@@ -344,10 +342,65 @@ export default function ComplaintTracking() {
               />
               Evidence Submitted
             </div>
-            <div className="card-body d-flex flex-column gap-2">
-              {c.evidence_image_url ? (
+            <div className="card-body">
+              {c.evidence.image_url ? (
                 <a
-                  href={c.evidence_image_url}
+                  href={c.evidence.image_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="d-block text-decoration-none position-relative overflow-hidden rounded"
+                  style={{
+                    width: "100%",
+                    maxWidth: 320,
+                    aspectRatio: "16/9",
+                    border: "1px solid var(--color-border)",
+                    background: "var(--color-surface-2)",
+                    transition: "border-color var(--transition)",
+                  }}
+                >
+                  <img
+                    src={c.evidence.image_url}
+                    alt="evidence"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      display: "block",
+                    }}
+                  />
+                  {/* hover overlay */}
+                  <div
+                    className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+                    style={{
+                      background: "rgba(0,0,0,0.35)",
+                      opacity: 0,
+                      transition: "opacity 0.2s",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.opacity = 1)}
+                    onMouseLeave={(e) => (e.currentTarget.style.opacity = 0)}
+                  >
+                    <i
+                      className="ti ti-zoom-in"
+                      style={{ color: "#fff", fontSize: 28 }}
+                    />
+                  </div>
+                </a>
+              ) : (
+                <span
+                  style={{
+                    color: "var(--color-text-muted)",
+                    fontSize: "0.875rem",
+                  }}
+                >
+                  No evidence uploaded
+                </span>
+              )}
+            </div>
+
+            {/* <div className="card-body d-flex flex-column gap-2">
+              {c.evidence.image_url ? (
+                <a
+                  href={c.evidence.image_url}
                   target="_blank"
                   rel="noreferrer"
                   className="d-flex align-items-center gap-3 p-2 rounded text-decoration-none"
@@ -366,7 +419,7 @@ export default function ComplaintTracking() {
                     }}
                   >
                     <img
-                      src={c.evidence_image_url}
+                      src={c.evidence.image_url}
                       alt="evidence"
                       style={{
                         width: "100%",
@@ -403,7 +456,7 @@ export default function ComplaintTracking() {
                   No evidence uploaded
                 </span>
               )}
-            </div>
+            </div> */}
             {/* <div className="card-body d-flex flex-column gap-2">
               {c.evidence?.length > 0
                 ? c.evidence.map((url, i) => (
@@ -450,31 +503,31 @@ export default function ComplaintTracking() {
               AI Analysis Results
             </div>
             <div className="card-body">
-              {c.ai_confidence ? (
+              {c.ai_analysis.confidence ? (
                 <>
                   <InfoRow
                     label="Verdict"
                     value={
                       <span
                         className={`badge ${
-                          c.ai_verdict === "Likely Manipulated"
+                          c.ai_analysis.verdict === "Likely Manipulated"
                             ? "badge-rejected"
                             : "badge-approved"
                         }`}
                       >
-                        {c?.ai_verdict}
+                        {c?.ai_analysis.verdict}
                       </span>
                     }
                   />
                   <InfoRow
                     label="Confidence Score"
                     value={
-                      c.ai_confidence
-                        ? `${c.ai_confidence}%`
+                      c.ai_analysis.confidence
+                        ? `${c.ai_analysis.confidence}%`
                         : null
                     }
                   />
-                  <InfoRow label="LBP Score" value={c.ai_lbp_score} />
+                  <InfoRow label="LBP Score" value={c.ai_analysis.lbp_score} />
                   {/* <InfoRow
                     label="Recommendation"
                     value={c.ai_recommended_decision}

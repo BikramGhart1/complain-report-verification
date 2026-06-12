@@ -37,6 +37,7 @@ class ComplaintListSerializer(serializers.ModelSerializer):
         fields = [
             "id", "title", "status", "tags", "ai_flagged",
             "is_anonymous", "crime_location", "filed_by", "created_at",
+            "incident_date",
         ]
  
     def get_filed_by(self, obj):
@@ -94,6 +95,8 @@ class ComplaintDetailSerializer(serializers.ModelSerializer):
 
             "comments",
             "report_available",
+            "incident_date",
+            
         ]
         read_only_fields = [
             "id", "status", "ai_flagged", "ai_confidence", "ai_is_fake",
@@ -123,6 +126,51 @@ class ComplaintDetailSerializer(serializers.ModelSerializer):
  
     def get_report_available(self, obj):
         return hasattr(obj, "report") and bool(obj.report.pdf_file)
+    
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        return {
+            "id":             data["id"],
+            "title":          data["title"],
+            "description":    data["description"],
+            "status":         data["status"],
+            "tags":           data["tags"],
+            "incident_date":  data["incident_date"],
+            "created_at":     data["created_at"],
+            "modified_at":    data["modified_at"],
+            "report_available": data["report_available"],
+            "is_anonymous":   data["is_anonymous"],
+
+            "victim": {
+                "name":              data["victim_name"],
+                "phone_number":      data.get("victim_phone_number"),
+                "is_self_accused":   data["is_self_accused"],
+            },
+
+            "suspect": {
+                "name":          data["perpetrator_name"],
+                "crime_location": data["crime_location"],
+            },
+
+            "evidence": {
+                "image_url":  data["evidence_image_url"],
+            },
+
+            "ai_analysis": {
+                "flagged":              data["ai_flagged"],
+                "confidence":           data["ai_confidence"],
+                "is_fake":              data["ai_is_fake"],
+                "heatmap_url":          data["ai_heatmap_url"],
+                "model_version":        data["ai_model_version"],
+                "lbp_score":            data["ai_lbp_score"],
+                "verdict":              data["ai_verdict"],
+                "recommended_decision": data["ai_recommended_decision"],
+            },
+
+            "reporter": data["filed_by"],
+            "comments": data["comments"],
+        }
  
     def create(self, validated_data):
         tags = validated_data.pop("tags", [])

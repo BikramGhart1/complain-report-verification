@@ -143,6 +143,10 @@ export default function SubmitComplaint() {
     }
   };
 
+  useEffect(()=>{
+    console.log("form: ",form)
+  },[form])
+
   return (
     <div className="fade-in">
       <div className="mb-4">

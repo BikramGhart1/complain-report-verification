@@ -41,7 +41,6 @@ export const submitComplaint = async (form, evidenceFile) => {
     form.tagIds.forEach(id => fd.append('tags', id));
   }
 
-  // single evidence image
   if (evidenceFile) {
     fd.append('evidence_image', evidenceFile);
   }
@@ -93,7 +92,6 @@ export const downloadComplaintReport = async (id) => {
   const response = await axiosInstance.get(`/complaints/${id}/report/`, {
     responseType: 'blob',
   });
-  // Trigger browser download
   const url = window.URL.createObjectURL(new Blob([response.data]));
   const link = document.createElement('a');
   link.href = url;
