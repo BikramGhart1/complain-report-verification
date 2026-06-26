@@ -32,8 +32,8 @@ class Complaint(BaseModel):
     class Status(models.TextChoices):
         PENDING   = 'pending',   'Pending'
         ONGOING   = 'ongoing',   'Ongoing'
-        ON_HOLD   = 'on_hold',   'On Hold'
-        COMPLETED = 'completed', 'Completed'
+        APPROVED   = 'approved',   'Approved'
+        REJECTED = 'rejected', 'Rejected'
         FAILED    = 'failed',    'Failed'
 
     user   = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='complaints')
@@ -45,8 +45,12 @@ class Complaint(BaseModel):
 
     is_anonymous   = models.BooleanField(default=False)
     is_self_accused = models.BooleanField(default=False)  
-    perpetrator_name = models.CharField(max_length=255, blank=True)
-    victim_name      = models.CharField(max_length=255, blank=True)
+    perpetrator_first_name = models.CharField(max_length=255, blank=True)
+    perpetrator_middle_name = models.CharField(max_length=255, blank=True)
+    perpetrator_last_name = models.CharField(max_length=255, blank=True)
+    victim_first_name  = models.CharField(max_length=255, blank=True)
+    victim_middle_name = models.CharField(max_length=255, blank=True)
+    victim_last_name = models.CharField(max_length=255, blank=True)
     victim_phone_number  = models.CharField(max_length=20, blank=True)
     incident_date        = models.DateField(null=True, blank=True)
 
@@ -71,6 +75,17 @@ class Complaint(BaseModel):
 
     def __str__(self):
         return f'[{self.status}] {self.title}'
+    
+    @property
+    def victim_name(self):
+            return " ".join(
+                name for name in [
+                    self.victim_first_name,
+                    self.victim_middle_name,
+                    self.victim_last_name,
+                ]
+                if name
+            )
 
 
 class ComplaintComment(BaseModel):
