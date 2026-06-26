@@ -86,6 +86,17 @@ class Complaint(BaseModel):
                 ]
                 if name
             )
+    
+    @property
+    def perpetrator_name(self):
+            return " ".join(
+                name for name in [
+                    self.perpetrator_first_name,
+                    self.perpetrator_middle_name,
+                    self.perpetrator_last_name,
+                ]
+                if name
+            )
 
 
 class ComplaintComment(BaseModel):
