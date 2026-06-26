@@ -1,4 +1,3 @@
-print("signals.py loaded")
 import os
 import threading
 import logging
@@ -84,29 +83,35 @@ def _run_ai_analysis(complaint_id: int):
     if not complaint.evidence_image:
         return
     try:
+        print("ENTEREDDDDDDDDDDDD")
         from detection.services.preprocess import preprocess
         from detection.services.inference import predict
         from detection.services.gradcam import generate_cam
         from detection.services.model_loader import load_model, DEVICE
 
-        tensor, face_rgb  = preprocess(complaint.evidence_image.path)
+        tensor, image_rgb  = preprocess(complaint.evidence_image.path)
         result            = predict(tensor=tensor)
         is_fake           = result["is_fake"]
         confidence_pct    = round(result["confidence"] * 100, 2)
 
-        lbp_score         = _compute_lbp_score(face_rgb)
+        lbp_score         = _compute_lbp_score(image_rgb)
         verdict, decision = _derive_verdict_and_decision(is_fake, confidence_pct, lbp_score)
 
         model        = load_model()
         target_layer = model.features[-1]   
+        print("oneeeeeeeee safe")
 
         heatmap_filename = f"heatmap_complaint_{complaint_id}.jpg"
         heatmap_path     = os.path.join(settings.MEDIA_ROOT, "heatmaps", heatmap_filename)
         os.makedirs(os.path.dirname(heatmap_path), exist_ok=True)
 
+        print("midddddddddddd safe")
+
         generate_cam(model=model, tensor=tensor.unsqueeze(0).to(DEVICE),
                      target_layer=target_layer, target_class=int(is_fake),
                      save_path=heatmap_path)
+        
+        print("twoooooooo safe")
 
         ai_flagged = is_fake and confidence_pct >= 70.0
 
@@ -142,3 +147,4 @@ def trigger_ai_analysis(sender, instance, created, **kwargs):
         t.start()
         logger.info("Spawned AI thread for complaint %s", complaint_id)
     transaction.on_commit(spawn_thread)
+    

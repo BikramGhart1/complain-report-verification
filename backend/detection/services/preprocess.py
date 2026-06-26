@@ -1,39 +1,24 @@
+import cv2
 import torch
 from torchvision import transforms
-import cv2
-from .face_detection import detect_face
-from core.utils.edge import apply_edge_detection
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-transform = transforms.Compose([
+_transform = transforms.Compose([
     transforms.ToPILImage(),
-    transforms.Resize((224, 224)),
+    transforms.Resize((64, 64)),
     transforms.ToTensor(),
     transforms.Normalize(
-        [0.485,0.456,0.406],
-        [0.229,0.224,0.225]
-    )
+        mean=[0.485, 0.456, 0.406],
+        std=[0.229, 0.224, 0.225],
+    ),
 ])
 
-def preprocess(image_path):
-    try:
-        face = detect_face(image_path)
+def preprocess(image_path: str):
+    img_bgr = cv2.imread(image_path)
+    if img_bgr is None:
+        raise ValueError(f"Could not read image at path: {image_path}")
 
-        if face is None:
-            raise ValueError("No face detected")
-
-    except Exception as e:
-        print("Face detection failed:", e)
-
-        face = cv2.imread(image_path)
-
-        if face is None:
-            raise ValueError("Image could not be read")
-
-    face_rgb = cv2.cvtColor(face, cv2.COLOR_BGR2RGB)
-    face_rgb = apply_edge_detection(face_rgb)
-
-    tensor = transform(face_rgb)
-
-    return tensor, face_rgb
+    image_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+    tensor = _transform(image_rgb)
+    return tensor, image_rgb
