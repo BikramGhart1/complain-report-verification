@@ -9,7 +9,7 @@ admin.site.register(ComplaintComment)
 
 @admin.register(Complaint)
 class ComplaintAdmin(admin.ModelAdmin):
-    ...
+    filter_horizontal = ('tags',)
     def save_model(self, request, obj, form, change):
         if change and 'evidence_image' in form.changed_data:
             obj.ai_model_version = ''

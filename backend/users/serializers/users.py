@@ -14,7 +14,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             "id", "email", "password",
             "first_name", "middle_name", "last_name",
             "citizenship_number", "profile_picture",
-            "gender", "phone_number"
+            "gender", "phone_number", "address"
         ]
         extra_kwargs = {
             "profile_picture": {"required": False},
@@ -37,7 +37,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             "id", "email",
-            "first_name", "middle_name", "last_name", "full_name",
+            "first_name", "middle_name", "last_name", "full_name", "address",
             "citizenship_number", "profile_picture", "is_admin", "role", "phone_number"
         ]
         read_only_fields = ["id", "citizenship_number", "is_admin", "role"]
