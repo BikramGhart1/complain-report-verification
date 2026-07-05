@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   getComplaintById,
@@ -8,14 +8,23 @@ import { toast } from "react-toastify";
 
 const STATUS_BADGE = {
   pending: "badge-pending",
-  under_review: "badge-review",
-  forwarded: "badge-forwarded",
-  closed: "badge-closed",
-  rejected: "badge-rejected",
+  ongoing: "badge-review",
   approved: "badge-approved",
+  rejected: "badge-rejected",
+  closed: "badge-closed",
 };
 
-const STATUS_STEPS = ["pending", "under_review", "approved"];
+// const STATUS_STEPS = ["pending", "ongoing", "approved"];
+
+const STATUS_STEPS = ["pending", "ongoing", "resolved"];
+
+const STATUS_TO_STEP = {
+  pending: 0,
+  ongoing: 1,
+  approved: 2,
+  rejected: 2,
+  closed: 2,
+};
 
 const InfoRow = ({ label, value }) => (
   <div
@@ -86,7 +95,10 @@ export default function ComplaintTracking() {
   }
 
   const c = complaint;
-  const stepIndex = STATUS_STEPS.indexOf(c.status);
+  // const stepIndex = STATUS_STEPS.indexOf(c.status);
+
+  const stepIndex = STATUS_TO_STEP[complaint?.status] ?? 0;
+  const isRejected = c?.status === "rejected";
 
   return (
     <div className="fade-in">
@@ -131,107 +143,82 @@ export default function ComplaintTracking() {
       </div>
 
       {/* ── Status timeline ── */}
-      <div className="card mb-3">
-        <div className="card-header">
-          <i className="ti ti-timeline me-2" />
-          Case Progress
-        </div>
-        <div className="card-body">
-          <div className="d-flex align-items-center gap-0">
-            {STATUS_STEPS.map((step, i) => {
-              const done = i <= stepIndex;
-              const current = i === stepIndex;
-              const rejected = c?.status === "rejected";
-              return (
+      <div className="d-flex align-items-center gap-0 w-100 pb-4">
+        {STATUS_STEPS.map((step, i) => {
+          const done = i <= stepIndex;
+          const isLastStep = i === STATUS_STEPS.length - 1;
+          const label = isLastStep && isRejected ? "rejected" : step;
+
+          return (
+            <React.Fragment key={step}>
+              <div
+                className="d-flex flex-column align-items-center flex-shrink-0"
+                style={{ minWidth: 80 }}
+              >
                 <div
-                  key={step}
-                  className="d-flex align-items-center flex-grow-1"
+                  className="rounded-circle d-flex align-items-center justify-content-center"
+                  style={{
+                    width: 32,
+                    height: 32,
+                    background:
+                      isRejected && isLastStep && done
+                        ? "var(--color-rejected)"
+                        : done
+                          ? "var(--color-primary)"
+                          : "var(--color-surface-3)",
+                    border: `2px solid ${
+                      isRejected && isLastStep && done
+                        ? "var(--color-rejected)"
+                        : done
+                          ? "var(--color-primary)"
+                          : "var(--color-border)"
+                    }`,
+                    color: done ? "#fff" : "var(--color-text-muted)",
+                    fontSize: 14,
+                    flexShrink: 0,
+                  }}
                 >
-                  <div
-                    className="d-flex flex-column align-items-center"
-                    style={{ minWidth: 80 }}
-                  >
-                    {/* Circle */}
-                    <div
-                      className="rounded-circle d-flex align-items-center justify-content-center"
-                      style={{
-                        width: 32,
-                        height: 32,
-                        background:
-                          rejected && current
-                            ? "var(--color-rejected)"
-                            : done
-                              ? "var(--color-primary)"
-                              : "var(--color-surface-3)",
-                        border: `2px solid ${done ? "var(--color-primary)" : "var(--color-border)"}`,
-                        color: done ? "#fff" : "var(--color-text-muted)",
-                        fontSize: 14,
-                        flexShrink: 0,
-                      }}
-                    >
-                      <i className={`ti ${done ? "ti-check" : "ti-point"}`} />
-                    </div>
-                    <small
-                      className="mt-1 text-center"
-                      style={{
-                        fontSize: "0.65rem",
-                        color: done
+                  <i
+                    className={`ti ${isRejected && isLastStep && done ? "ti-x" : done ? "ti-check" : "ti-point"}`}
+                  />
+                </div>
+                <small
+                  className="mt-1 text-center"
+                  style={{
+                    fontSize: "0.65rem",
+                    color:
+                      isRejected && isLastStep && done
+                        ? "var(--color-rejected)"
+                        : done
                           ? "var(--color-primary)"
                           : "var(--color-text-muted)",
-                        fontFamily: "var(--font-mono)",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.04em",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {step.replace("_", " ")}
-                    </small>
-                  </div>
-                  {/* Connector line */}
-                  {i < STATUS_STEPS.length - 1 && (
-                    <div
-                      className="flex-grow-1"
-                      style={{
-                        height: 2,
-                        background:
-                          i < stepIndex
-                            ? "var(--color-primary)"
-                            : "var(--color-border)",
-                        marginBottom: 20,
-                      }}
-                    />
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                    fontFamily: "var(--font-mono)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.04em",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {label.replace("_", " ")}
+                </small>
+              </div>
 
-          {c?.status === "rejected" && (
-            <div
-              className="d-flex align-items-center gap-2 mt-3 p-2 rounded"
-              style={{
-                background: "var(--color-rejected-bg)",
-                border: "1px solid var(--color-rejected)",
-              }}
-            >
-              <i
-                className="ti ti-circle-x"
-                style={{ color: "var(--color-rejected)" }}
-              />
-              <small style={{ color: "var(--color-rejected)" }}>
-                This complaint was rejected.
-                {c.adminRemarks && (
-                  <>
-                    {" "}
-                    Reason: <strong>{c?.adminRemarks}</strong>
-                  </>
-                )}
-              </small>
-            </div>
-          )}
-        </div>
+              {!isLastStep && (
+                <div
+                  className="flex-grow-1"
+                  style={{
+                    height: 2,
+                    background:
+                      i < stepIndex
+                        ? "var(--color-primary)"
+                        : "var(--color-border)",
+                    marginBottom: 20,
+                  }}
+                />
+              )}
+            </React.Fragment>
+          );
+        })}
       </div>
-
       {/* ── Main grid ── */}
       <div className="row g-3 mb-3">
         <div className="col-md-6">

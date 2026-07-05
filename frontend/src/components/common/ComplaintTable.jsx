@@ -4,8 +4,7 @@ import { toast } from 'react-toastify';
 
 const STATUS_BADGE = {
   pending:      'badge-pending',
-  under_review: 'badge-review',
-  forwarded:    'badge-forwarded',
+  ongoing: 'badge-review',
   closed:       'badge-closed',
   rejected:     'badge-rejected',
   approved:     'badge-approved',
@@ -38,7 +37,8 @@ export default function ComplaintTable({ fetchFn, actionLabel, actionPath }) {
     try {
       const data = await fetchFn({ ...params, page, limit: LIMIT });
       // setComplaints(data.complaints ?? []);
-      setComplaints(data ?? []);
+      console.log("data: ",data);
+      setComplaints(data.results ?? []);
       setTotal(data.total ?? 0);
     } catch (err) {
       toast.error(err.message || 'Failed to load complaints');
@@ -56,6 +56,10 @@ export default function ComplaintTable({ fetchFn, actionLabel, actionPath }) {
   };
 
   const totalPages = Math.ceil(total / LIMIT);
+
+  useEffect(()=>{
+    console.log("complaints: ",complaints);
+  },[complaints])
 
   return (
     <div className="fade-in">
@@ -199,7 +203,7 @@ export default function ComplaintTable({ fetchFn, actionLabel, actionPath }) {
         </div>
 
         {/* Footer — count + pagination */}
-        <div className="card-body pt-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
+        {/* <div className="card-body pt-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
           <small style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>
             {loading ? '—' : `${Math.min((page - 1) * LIMIT + 1, total)}–${Math.min(page * LIMIT, total)} of ${total} entries`}
           </small>
@@ -241,7 +245,7 @@ export default function ComplaintTable({ fetchFn, actionLabel, actionPath }) {
               </ul>
             </nav>
           )}
-        </div>
+        </div> */}
 
       </div>
     </div>

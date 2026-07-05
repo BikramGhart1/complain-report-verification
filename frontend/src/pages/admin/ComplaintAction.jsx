@@ -15,6 +15,11 @@ const STATUS_BADGE = {
   approved: "badge-approved",
 };
 
+const INITIAL_FORM = {
+  remarks: "",
+  approved: null,
+};
+
 const ReadField = ({ label, value }) => (
   <div>
     <label
@@ -54,6 +59,7 @@ export default function ComplaintAction() {
   const [loading, setLoading] = useState(true);
   const [remarks, setRemarks] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [form, setForm] = useState(INITIAL_FORM);
 
   useEffect(() => {
     getComplaintById(id)
@@ -165,7 +171,9 @@ export default function ComplaintAction() {
                 <ReadField label="Complaint Title" value={c.title} />
               </div>
               <div className="col-md-6">
-                <ReadField label="Category" value={c.category} />
+                {c.tags.map((item) => (
+                  <ReadField label="Category" value={item.name} />
+                ))}
               </div>
               <div className="col-md-6">
                 <ReadField
@@ -202,16 +210,28 @@ export default function ComplaintAction() {
           <div className="card-body">
             <div className="row g-3">
               <div className="col-md-4">
-                <ReadField label="First Name" value={c?.victimFirstName} />
+                <ReadField
+                  label="First Name"
+                  value={c?.victim.victim_first_name}
+                />
               </div>
               <div className="col-md-4">
-                <ReadField label="Middle Name" value={c?.victimMiddleName} />
+                <ReadField
+                  label="Middle Name"
+                  value={c?.victim.victim_middle_name}
+                />
               </div>
               <div className="col-md-4">
-                <ReadField label="Last Name" value={c?.victimLastName} />
+                <ReadField
+                  label="Last Name"
+                  value={c?.victim.victim_last_name}
+                />
               </div>
               <div className="col-md-6">
-                <ReadField label="Phone Number" value={c?.victim.phone_number} />
+                <ReadField
+                  label="Phone Number"
+                  value={c?.victim.phone_number}
+                />
               </div>
               <div className="col-md-6">
                 <ReadField
@@ -333,16 +353,22 @@ export default function ComplaintAction() {
           <div className="card-body">
             <div className="row g-3">
               <div className="col-md-4">
-                <ReadField label="First Name" value={c.reporter} />
+                <ReadField label="First Name" value={c?.reporter.first_name} />
               </div>
               <div className="col-md-4">
-                <ReadField label="Middle Name" value={c.reporter?.middleName} />
+                <ReadField
+                  label="Middle Name"
+                  value={c?.reporter?.middle_name}
+                />
               </div>
               <div className="col-md-4">
-                <ReadField label="Last Name" value={c.reporter?.lastName} />
+                <ReadField label="Last Name" value={c?.reporter?.last_name} />
               </div>
               <div className="col-md-6">
-                <ReadField label="Phone Number" value={c.reporter?.phone} />
+                <ReadField
+                  label="Phone Number"
+                  value={c?.reporter?.phone_number}
+                />
               </div>
             </div>
           </div>
@@ -374,11 +400,18 @@ export default function ComplaintAction() {
                 <div className="col-md-4">
                   <ReadField
                     label="Confidence Score"
-                    value={c.ai_analysis.confidence ? `${c.ai_analysis.confidence}%` : ""}
+                    value={
+                      c.ai_analysis.confidence
+                        ? `${c.ai_analysis.confidence}%`
+                        : ""
+                    }
                   />
                 </div>
                 <div className="col-md-4">
-                  <ReadField label="LBP Score" value={c.ai_analysis.lbp_score} />
+                  <ReadField
+                    label="LBP Score"
+                    value={c.ai_analysis.lbp_score}
+                  />
                 </div>
                 <div className="col-12">
                   <ReadField

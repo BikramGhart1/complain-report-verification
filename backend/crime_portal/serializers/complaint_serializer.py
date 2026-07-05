@@ -71,10 +71,16 @@ class ComplaintDetailSerializer(serializers.ModelSerializer):
             "tags",
             "tag_ids",
 
+            "victim_first_name",
+            "victim_middle_name",
+            "victim_last_name",
+            "victim_phone_number",
+            
+            
+
             "is_anonymous",
             "is_self_accused",
-            "perpetrator_name",
-            "victim_name",
+            "perpetrator_first_name",
             "crime_location",
 
             "evidence_image",
@@ -106,11 +112,24 @@ class ComplaintDetailSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "evidence_image": {"write_only": True, "required": False},
         }
- 
+        
     def get_filed_by(self, obj):
         if obj.is_anonymous:
-            return f"Anonymous #{obj.id:04d}"
-        return obj.user.get_full_name() or obj.user.email
+            return {
+                "is_anonymous": True,
+                "display_name": f"Anonymous #{obj.id:04d}",
+            }
+        user = obj.user
+        return {
+            "is_anonymous": False,
+            "id": user.id,
+            "first_name": user.first_name,
+            "middle_name": user.middle_name,
+            "last_name": user.last_name,
+            "email": user.email,
+            "phone_number": getattr(user, "phone_number", None),  # if your User model has this
+            "display_name": user.get_full_name() or user.email,
+        }
  
     def get_evidence_image_url(self, obj):
         request = self.context.get("request")
@@ -143,13 +162,15 @@ class ComplaintDetailSerializer(serializers.ModelSerializer):
             "is_anonymous":   data["is_anonymous"],
 
             "victim": {
-                "name":              data["victim_name"],
+                "victim_first_name":              data["victim_first_name"],
+                "victim_middle_name":              data["victim_middle_name"],
+                "victim_last_name":              data["victim_last_name"],
                 "phone_number":      data.get("victim_phone_number"),
                 "is_self_accused":   data["is_self_accused"],
             },
 
             "suspect": {
-                "name":          data["perpetrator_name"],
+                "name":          data["perpetrator_first_name"],
                 "crime_location": data["crime_location"],
             },
 

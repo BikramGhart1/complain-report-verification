@@ -1,49 +1,63 @@
-import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { selectCurrentUser } from '../../features/auth/authSlice';
-import { getAdminDashboardStats, getAdminComplaints } from '../../services/complaintService';
-import { toast } from 'react-toastify';
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { selectCurrentUser } from "../../features/auth/authSlice";
+import {
+  getAdminDashboardStats,
+  getAdminComplaints,
+} from "../../services/complaintService";
+import { toast } from "react-toastify";
 
 const STAT_CARDS = [
-  { key: 'total',      label: 'Total Complaints', icon: 'ti-files' },
-  { key: 'underReview',label: 'Under Review',     icon: 'ti-eye' },
-  { key: 'forwarded',  label: 'Forwarded',        icon: 'ti-send' },
-  { key: 'closed',     label: 'Closed',           icon: 'ti-circle-check' },
+  { key: "total", label: "Total Complaints", icon: "ti-files" },
+  { key: "pending", label: "pending", icon: "ti-eye" },
+  { key: "ongoing", label: "ongoing", icon: "ti-send" },
+  { key: "closed", label: "Closed", icon: "ti-circle-check" },
 ];
 
 const STATUS_BADGE = {
-  pending:    'badge-pending',
-  under_review:'badge-review',
-  forwarded:  'badge-forwarded',
-  closed:     'badge-closed',
-  rejected:   'badge-rejected',
-  approved:   'badge-approved',
+  pending: "badge-pending",
+  ongoing: "badge-review",
+  closed: "badge-closed",
+  rejected: "badge-rejected",
+  approved: "badge-approved",
 };
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const user     = useSelector(selectCurrentUser);
+  const user = useSelector(selectCurrentUser);
 
-  const [stats, setStats]         = useState(null);
+  const [stats, setStats] = useState(null);
   const [complaints, setComplaints] = useState([]);
-  const [loading, setLoading]     = useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const today = new Date().toLocaleDateString('en-US', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+  const today = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [s, c] = await Promise.all([
+        const [statsResult, complaintsResult] = await Promise.allSettled([
           getAdminDashboardStats(),
           getAdminComplaints({ limit: 5 }),
         ]);
-        setStats(s);
-        setComplaints(c.complaints ?? []);
-      } catch (err) {
-        toast.error(err.message || 'Failed to load dashboard');
+
+        if (statsResult.status === "fulfilled") {
+          setStats(statsResult.value);
+        } else {
+          console.error("Stats failed:", statsResult.reason);
+        }
+
+        if (complaintsResult.status === "fulfilled") {
+          setComplaints(complaintsResult.value.results ?? []);
+        } else {
+          console.error("Complaints failed:", complaintsResult.reason);
+          toast.error("Failed to load complaints");
+        }
       } finally {
         setLoading(false);
       }
@@ -53,13 +67,20 @@ export default function AdminDashboard() {
 
   return (
     <div className="fade-in">
-
       {/* ── Page header ── */}
       <div className="mb-4">
-        <h5 className="fw-semibold mb-0" style={{ color: 'var(--color-text-primary)' }}>
+        <h5
+          className="fw-semibold mb-0"
+          style={{ color: "var(--color-text-primary)" }}
+        >
           Dashboard
         </h5>
-        <small style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>
+        <small
+          style={{
+            color: "var(--color-text-muted)",
+            fontFamily: "var(--font-mono)",
+          }}
+        >
           {today}
         </small>
       </div>
@@ -71,16 +92,30 @@ export default function AdminDashboard() {
             <div className="card h-100">
               <div className="card-body d-flex flex-column gap-2 p-3">
                 <div className="d-flex align-items-center justify-content-between">
-                  <small style={{ color: 'var(--color-text-secondary)' }}>{label}</small>
-                  <i className={`ti ${icon}`}
-                    style={{ fontSize: 18, color: 'var(--color-primary)' }} />
+                  <small style={{ color: "var(--color-text-secondary)" }}>
+                    {label}
+                  </small>
+                  <i
+                    className={`ti ${icon}`}
+                    style={{ fontSize: 18, color: "var(--color-primary)" }}
+                  />
                 </div>
-                {loading
-                  ? <div className="placeholder-glow"><span className="placeholder col-4" /></div>
-                  : <span className="fw-bold" style={{ fontSize: '2rem', color: 'var(--color-text-primary)', lineHeight: 1.1 }}>
-                      {stats?.[key] ?? 0}
-                    </span>
-                }
+                {loading ? (
+                  <div className="placeholder-glow">
+                    <span className="placeholder col-4" />
+                  </div>
+                ) : (
+                  <span
+                    className="fw-bold"
+                    style={{
+                      fontSize: "2rem",
+                      color: "var(--color-text-primary)",
+                      lineHeight: 1.1,
+                    }}
+                  >
+                    {stats?.[key] ?? 0}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -93,7 +128,7 @@ export default function AdminDashboard() {
           <span>Recent Reports</span>
           <button
             className="btn btn-sm btn-outline-primary"
-            onClick={() => navigate('/admin/complaints')}
+            onClick={() => navigate("/admin/complaints")}
           >
             View all
           </button>
@@ -112,61 +147,77 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {loading
-                  ? Array.from({ length: 5 }).map((_, i) => (
-                      <tr key={i}>
-                        {Array.from({ length: 6 }).map((_, j) => (
-                          <td key={j}>
-                            <div className="placeholder-glow">
-                              <span className="placeholder col-8" />
-                            </div>
-                          </td>
-                        ))}
-                      </tr>
-                    ))
-                  : complaints.length === 0
-                  ? (
-                      <tr>
-                        <td colSpan={6} className="text-center py-4"
-                          style={{ color: 'var(--color-text-muted)' }}>
-                          No complaints yet
+                {loading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={i}>
+                      {Array.from({ length: 6 }).map((_, j) => (
+                        <td key={j}>
+                          <div className="placeholder-glow">
+                            <span className="placeholder col-8" />
+                          </div>
                         </td>
-                      </tr>
-                    )
-                  : complaints.map((c) => (
-                      <tr key={c.id}>
-                        <td>
-                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem' }}>
-                            #{c.id}
-                          </span>
-                        </td>
-                        <td style={{ maxWidth: 180 }} className="text-truncate">{c.title}</td>
-                        <td>{c.category}</td>
-                        <td style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem' }}>
-                          {new Date(c.createdAt).toLocaleDateString()}
-                        </td>
-                        <td>
-                          <span className={`badge ${STATUS_BADGE[c.status] ?? 'badge-closed'}`}>
-                            {c.status?.replace('_', ' ')}
-                          </span>
-                        </td>
-                        <td>
-                          <button
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={() => navigate(`/admin/complaints/${c.id}`)}
-                          >
-                            Review
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                }
+                      ))}
+                    </tr>
+                  ))
+                ) : complaints.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="text-center py-4"
+                      style={{ color: "var(--color-text-muted)" }}
+                    >
+                      No complaints yet
+                    </td>
+                  </tr>
+                ) : (
+                  complaints.map((c) => (
+                    <tr key={c.id}>
+                      <td>
+                        <span
+                          style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "0.78rem",
+                          }}
+                        >
+                          #{c.id}
+                        </span>
+                      </td>
+                      <td style={{ maxWidth: 180 }} className="text-truncate">
+                        {c.title}
+                      </td>
+                      <td>{c.category}</td>
+                      <td
+                        style={{
+                          fontFamily: "var(--font-mono)",
+                          fontSize: "0.78rem",
+                        }}
+                      >
+                        {/* {new Date(c.createdAt).toLocaleDateString()} */}
+                        {c?.incident_date || ""}
+                      </td>
+                      <td>
+                        <span
+                          className={`badge ${STATUS_BADGE[c.status] ?? "badge-closed"}`}
+                        >
+                          {c.status?.replace("_", " ")}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          className="btn btn-sm btn-outline-primary"
+                          onClick={() => navigate(`/admin/complaints/${c.id}`)}
+                        >
+                          Review
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
         </div>
       </div>
-
     </div>
   );
 }

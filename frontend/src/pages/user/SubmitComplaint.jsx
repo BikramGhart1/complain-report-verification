@@ -6,6 +6,7 @@ import { submitComplaint, getTags } from "../../services/complaintService";
 import { toast } from "react-toastify";
 import useErrors from "../../hooks/useErrors";
 import { complaintValidationSchema } from "../../form_validations/complaintValidationSchema";
+import Select from "react-select";
 
 const PLATFORMS = [
   "Facebook",
@@ -50,11 +51,11 @@ export default function SubmitComplaint() {
   const { errors, resetErrors, validateForm, clearFieldError, setFieldError } =
     useErrors();
 
-  // useEffect(() => {
-  //   getTags()
-  //     .then(setTags)
-  //     .catch(() => toast.error("Failed to load categories"));
-  // }, []);
+  useEffect(() => {
+    getTags()
+      .then((res) => setTags(res.results))
+      .catch(() => toast.error("Failed to load categories"));
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -143,9 +144,18 @@ export default function SubmitComplaint() {
     }
   };
 
-  useEffect(()=>{
-    console.log("form: ",form)
-  },[form])
+  useEffect(() => {
+    console.log("form: ", form);
+  }, [form]);
+
+  const selectedTagObjects = tags.filter((tag) => form.tagIds.includes(tag.id));
+
+  const handleTagsChange = (selectedOptions) => {
+  setForm((prev) => ({
+    ...prev,
+    tagIds: selectedOptions ? selectedOptions.map((tag) => tag.id) : [],
+  }));
+};
 
   return (
     <div className="fade-in">
@@ -176,7 +186,9 @@ export default function SubmitComplaint() {
           <div className="card-body">
             <div className="row g-3">
               <div className="col-12">
-                <label className="form-label">Complaint Title <span className="text-danger">*</span></label>
+                <label className="form-label">
+                  Complaint Title <span className="text-danger">*</span>
+                </label>
                 <input
                   name="title"
                   className={`form-control ${errors.title ? "is-invalid" : ""}`}
@@ -192,7 +204,20 @@ export default function SubmitComplaint() {
               <div className="col-12">
                 <label className="form-label">Category / Tags</label>
                 <div className="d-flex flex-wrap gap-2">
-                  {tags.map((tag) => (
+                  <Select
+                    name="crimeTags"
+                    options={tags}
+                    value={selectedTagObjects}
+                    onChange={handleTagsChange}
+                    placeholder="Select Crime Tags"
+                    classNamePrefix="react-select"
+                    className={`${errors.tagIds ? "is-invalid" : ""}`}
+                    isClearable
+                    isMulti
+                    getOptionLabel={(option) => option.name}
+                    getOptionValue={(option) => option.id}
+                  />
+                  {/* {tags.map((tag) => (
                     <button
                       key={tag.id}
                       type="button"
@@ -206,7 +231,7 @@ export default function SubmitComplaint() {
                     >
                       {tag?.name}
                     </button>
-                  ))}
+                  ))} */}
                   {tags?.length === 0 && (
                     <small style={{ color: "var(--color-text-muted)" }}>
                       Loading categories...
@@ -221,7 +246,9 @@ export default function SubmitComplaint() {
               </div>
 
               <div className="col-md-6">
-                <label className="form-label">Incident Date <span className="text-danger">*</span></label>
+                <label className="form-label">
+                  Incident Date <span className="text-danger">*</span>
+                </label>
                 <input
                   type="date"
                   name="incidentDate"
@@ -235,7 +262,9 @@ export default function SubmitComplaint() {
               </div>
 
               <div className="col-12">
-                <label className="form-label">Description <span className="text-danger">*</span></label>
+                <label className="form-label">
+                  Description <span className="text-danger">*</span>
+                </label>
                 <textarea
                   name="description"
                   className={`form-control ${errors.description ? "is-invalid" : ""}`}
@@ -277,7 +306,9 @@ export default function SubmitComplaint() {
             </div>
             <div className="row g-3">
               <div className="col-md-4">
-                <label className="form-label">First Name <span className="text-danger">*</span></label>
+                <label className="form-label">
+                  First Name <span className="text-danger">*</span>
+                </label>
                 <input
                   name="victimFirstName"
                   className={`form-control ${errors.victimFirstName ? "is-invalid" : ""}`}
@@ -304,7 +335,9 @@ export default function SubmitComplaint() {
               </div>
 
               <div className="col-md-4">
-                <label className="form-label">Last Name <span className="text-danger">*</span></label>
+                <label className="form-label">
+                  Last Name <span className="text-danger">*</span>
+                </label>
                 <input
                   name="victimLastName"
                   className={`form-control ${errors.victimLastName ? "is-invalid" : ""}`}
@@ -320,7 +353,9 @@ export default function SubmitComplaint() {
               </div>
 
               <div className="col-md-6">
-                <label className="form-label">Phone Number <span className="text-danger">*</span></label>
+                <label className="form-label">
+                  Phone Number <span className="text-danger">*</span>
+                </label>
                 <input
                   name="victimPhone"
                   className={`form-control ${errors.victimPhone ? "is-invalid" : ""}`}
@@ -335,7 +370,9 @@ export default function SubmitComplaint() {
               </div>
 
               <div className="col-md-6">
-                <label className="form-label">Relation to Victim <span className="text-danger">*</span></label>
+                <label className="form-label">
+                  Relation to Victim <span className="text-danger">*</span>
+                </label>
                 <input
                   name="relationToVictim"
                   className={`form-control ${errors.relationToVictim ? "is-invalid" : ""}`}
