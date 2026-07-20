@@ -8,6 +8,11 @@ https://docs.djangoproject.com/en/6.0/howto/deployment/wsgi/
 """
 
 import os
+import sys
+
+
+if sys.platform == "win32":
+    os.add_dll_directory(r"C:\Program Files\GTK3-Runtime Win64\bin")
 
 from django.core.wsgi import get_wsgi_application
 
