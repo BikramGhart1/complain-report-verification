@@ -179,7 +179,9 @@ export default function ComplaintTable({ fetchFn, actionLabel, actionPath }) {
                         <td style={{ maxWidth: 200 }} className="text-truncate">{c.title}</td>
                         <td>{c.category}</td>
                         <td style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem' }}>
-                          {new Date(c.created_at).toLocaleDateString()}
+                          {/* {new Date(c.created_at).toLocaleDateString()} */}
+                          {c.created_at ? new Date(c.created_at).toLocaleDateString() : '—'}
+                          {/* {c.incident_date} */}
                         </td>
                         <td>
                           <span className={`badge ${STATUS_BADGE[c.status] ?? 'badge-closed'}`}>

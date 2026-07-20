@@ -227,7 +227,7 @@ export default function UserDashboard() {
                           fontSize: "0.78rem",
                         }}
                       >
-                        {new Date(c.createdAt).toLocaleDateString()}
+                        {c.created_at ? new Date(c.created_at).toLocaleDateString() : '—'}
                       </td>
                       <td>
                         <span
