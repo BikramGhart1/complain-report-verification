@@ -173,7 +173,9 @@ DATABASES = {
 #     }
 # }
 
-RESNET18_PATH = config('RESNET18_PATH')
+# RESNET18_PATH = config('RESNET18_PATH')
+
+RESNET18_PATH = config('RESNET18_PATH', default='')
 
 # RESNET50_PATH = config('RESNET50_PATH')
 # SWIN_PATH = config('SWIN_PATH')
