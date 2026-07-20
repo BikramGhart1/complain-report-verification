@@ -17,6 +17,5 @@ if sys.platform == "win32":
 from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
-os.add_dll_directory(r"C:\Program Files\GTK3-Runtime Win64\bin")
 
 application = get_wsgi_application()
