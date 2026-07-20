@@ -185,9 +185,9 @@ frontend/dist/
 frontend/.env*  
 
 # PyTorch / model weights
-*.pth
-*.pt
-*.ckpt
+# *.pth
+# *.pt
+# *.ckpt
 
 # ML artifacts / cache
 *.h5
@@ -196,6 +196,6 @@ frontend/.env*
 *.pb
 
 # Optional: directories where you might save outputs
-ml_models/
+# ml_models/
 checkpoints/
 logs/
