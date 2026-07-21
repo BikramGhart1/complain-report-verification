@@ -37,7 +37,6 @@ export default function ComplaintTable({ fetchFn, actionLabel, actionPath }) {
     try {
       const data = await fetchFn({ ...params, page, limit: LIMIT });
       // setComplaints(data.complaints ?? []);
-      console.log("data: ",data);
       setComplaints(data.results ?? []);
       setTotal(data.total ?? 0);
     } catch (err) {
@@ -56,10 +55,6 @@ export default function ComplaintTable({ fetchFn, actionLabel, actionPath }) {
   };
 
   const totalPages = Math.ceil(total / LIMIT);
-
-  useEffect(()=>{
-    console.log("complaints: ",complaints);
-  },[complaints])
 
   return (
     <div className="fade-in">

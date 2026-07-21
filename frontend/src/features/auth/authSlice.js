@@ -39,16 +39,12 @@ export const restoreSessionThunk = createAsyncThunk(
     try {
       const payload = JSON.parse(atob(stored.accessToken.split('.')[1]));
       const isExpired = payload.exp * 1000 < Date.now();
-      console.log('token expired?', isExpired);
-      console.log('has refresh token?', !!stored.refreshToken);
 
       if (isExpired && stored.refreshToken) {
-        console.log('attempting refresh...');
         const { data } = await axios.post(
           `${import.meta.env.VITE_API_BASE_URL}/auth/refresh/`,
           { refresh: stored.refreshToken }
         );
-        console.log('refresh response:', data);
         const newAccessToken = data.access;
         localStorage.setItem('accessToken', newAccessToken);
         return {

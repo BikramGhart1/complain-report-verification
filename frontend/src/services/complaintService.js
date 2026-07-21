@@ -20,7 +20,6 @@ export const getUserComplaints = async ({
   // const { data } = await axiosInstance.get(`/complaints/my?${params}/`);
   const { data } = await axiosInstance.get(`/complaints/`);
   // Expected: { complaints: [...], total, page, limit }
-  console.log("data: ", data);
   return data;
 };
 

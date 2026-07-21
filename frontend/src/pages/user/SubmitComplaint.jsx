@@ -53,8 +53,11 @@ export default function SubmitComplaint() {
 
   useEffect(() => {
     getTags()
-      .then((res) => setTags(res.results))
-      .catch(() => toast.error("Failed to load categories"));
+      .then((res) => setTags(res.data.results || []))
+      .catch(() => {
+        toast.error("Failed to load categories")
+        setTags([]);
+      });
   }, []);
 
   const handleChange = (e) => {
@@ -143,10 +146,6 @@ export default function SubmitComplaint() {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    console.log("form: ", form);
-  }, [form]);
 
   const selectedTagObjects = tags.filter((tag) => form.tagIds.includes(tag.id));
 
