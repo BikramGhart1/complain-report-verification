@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from decouple import config
 import os
 from pathlib import Path
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -55,6 +56,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -72,7 +74,13 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5174",
 ]
 
-# CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOWED_ORIGINS = config(
+#     'CORS_ALLOWED_ORIGINS',
+#     default='http://localhost:5173',
+#     cast=lambda v: [s.strip() for s in v.split(',')]
+# )
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:5173',
@@ -80,6 +88,12 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:5174',
     'http://127.0.0.1:5174',
 ]
+
+# CSRF_TRUSTED_ORIGINS = config(
+#     'CSRF_TRUSTED_ORIGINS',
+#     default='http://localhost:5173,http://127.0.0.1:5173',
+#     cast=lambda v: [s.strip() for s in v.split(',')]
+# )
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -157,13 +171,23 @@ DATABASES = {
 }
 
 # DATABASES = {
+#     'default': dj_database_url.config(
+#         default=config('DATABASE_URL'),
+#         conn_max_age=600,
+#         ssl_require=True
+#     )
+# }
+
+# DATABASES = {
 #     'default': {
 #         'ENGINE': config('DB_ENGINE'),
 #         'NAME': config('DB_NAME'),
 #     }
 # }
 
-RESNET18_PATH = config('RESNET18_PATH')
+# RESNET18_PATH = config('RESNET18_PATH')
+
+RESNET18_PATH = config('RESNET18_PATH', default='')
 
 # RESNET50_PATH = config('RESNET50_PATH')
 # SWIN_PATH = config('SWIN_PATH')
@@ -211,6 +235,12 @@ import os
 ML_MODELS_DIR = os.path.join(BASE_DIR, 'ml_models')
 
 STATIC_URL = 'static/'
+# STATIC_ROOT = BASE_DIR / 'staticfiles'
+# STORAGES = {
+#     "staticfiles": {
+#         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+#     },
+# }
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

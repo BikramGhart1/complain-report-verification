@@ -8,19 +8,41 @@ export const getUserDashboardStats = async () => {
   return data;
 };
 
+// export const getUserComplaints = async ({
+//   page = 1,
+//   limit = 10,
+//   status = "",
+//   search = "",
+// } = {}) => {
+//   const params = new URLSearchParams({ page, limit });
+//   if (status) params.append("status", status);
+//   if (search) params.append("search", search);
+//   // const { data } = await axiosInstance.get(`/complaints/my?${params}/`);
+//   const { data } = await axiosInstance.get(`/complaints/`);
+//   // Expected: { complaints: [...], total, page, limit }
+//   console.log("data: ", data);
+//   return data;
+// };
+
 export const getUserComplaints = async ({
   page = 1,
-  limit = 10,
+  limit = 5,
   status = "",
+  category = "",
+  fromDate = "",
+  toDate = "",
   search = "",
+  aiFlagged ="",
 } = {}) => {
   const params = new URLSearchParams({ page, limit });
   if (status) params.append("status", status);
+  if (category) params.append("category", category);
+  if (fromDate) params.append("fromDate", fromDate);
+  if (toDate) params.append("toDate", toDate);
+  if (aiFlagged) params.append("aiFlagged", aiFlagged);
   if (search) params.append("search", search);
-  // const { data } = await axiosInstance.get(`/complaints/my?${params}/`);
-  const { data } = await axiosInstance.get(`/complaints/`);
+  const { data } = await axiosInstance.get(`/complaints?${params}`);
   // Expected: { complaints: [...], total, page, limit }
-  console.log("data: ", data);
   return data;
 };
 
@@ -83,14 +105,17 @@ export const getAdminComplaints = async ({
   fromDate = "",
   toDate = "",
   search = "",
+  aiFlagged = "",
 } = {}) => {
   const params = new URLSearchParams({ page, limit });
   if (status) params.append("status", status);
   if (category) params.append("category", category);
   if (fromDate) params.append("fromDate", fromDate);
   if (toDate) params.append("toDate", toDate);
+  if (aiFlagged) params.append("aiFlagged", aiFlagged);
+
   if (search) params.append("search", search);
-  const { data } = await axiosInstance.get(`/complaints?${params}/`);
+  const { data } = await axiosInstance.get(`/complaints?${params}`);
   // Expected: { complaints: [...], total, page, limit }
   return data;
 };
@@ -116,7 +141,9 @@ export const reviewComplaint = async (id, { decision, remarks }) => {
   try {
     await addComplaintComment(id, remarks);
   } catch (err) {
-    toast.error("Status updated, but failed to save remarks. Please add them manually.");
+    toast.error(
+      "Status updated, but failed to save remarks. Please add them manually.",
+    );
     throw err;
   }
 };

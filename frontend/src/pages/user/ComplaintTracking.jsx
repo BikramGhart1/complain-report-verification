@@ -550,7 +550,7 @@ export default function ComplaintTracking() {
           Admin Review
         </div>
         <div className="card-body">
-          {c.adminRemarks ? (
+          {c.comments.length>0 ? (
             <>
               <InfoRow
                 label="Decision"
@@ -574,7 +574,7 @@ export default function ComplaintTracking() {
                     lineHeight: 1.6,
                   }}
                 >
-                  {c.adminRemarks}
+                  {c.comments[0].body}
                 </p>
               </div>
             </>

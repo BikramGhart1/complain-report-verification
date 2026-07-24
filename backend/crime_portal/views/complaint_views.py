@@ -10,6 +10,7 @@ from crime_portal.serializers.complaint_serializer import (
     ComplaintStatusUpdateSerializer,
     AdminCommentSerializer,
 )
+from django.db.models import Q 
 
 
 
@@ -45,9 +46,48 @@ class ComplaintListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         user = self.request.user
         qs = Complaint.objects.select_related("user").prefetch_related("tags", "comments")
+
+        # if user.is_admin:
+        #     return qs.all()
+        # return qs.filter(user=user)
+
         if user.is_admin:
-            return qs.all()
-        return qs.filter(user=user)
+            qs = qs.all()
+        else:
+            qs = qs.filter(user=user)
+
+        page = int(self.request.query_params.get("page", 1))
+        limit = int(self.request.query_params.get("limit", 25))
+        
+        status = self.request.query_params.get("status","")
+        category = self.request.query_params.get("category","")
+        from_date = self.request.query_params.get("fromDate","")
+        to_date = self.request.query_params.get("toDate","")
+        ai_flagged = self.request.query_params.get("aiFlagged","")
+        
+        search = self.request.query_params.get("search","")
+
+        if status:
+            qs=qs.filter(status=status)
+        if category:
+            qs=qs.filter(tags__category=category)
+        if from_date:
+            qs=qs.filter(incident_date__gte = from_date)
+        if to_date:
+            qs=qs.filter(incident_date__lte = to_date)
+        if ai_flagged != "":
+            qs = qs.filter(ai_flagged=ai_flagged.lower() == "true")
+        if search:
+            qs=qs.filter(
+                Q(title__icontains=search) | 
+                Q(victim_first_name__icontains=search) | 
+                Q(victim_middle_name__icontains=search) | 
+                Q(victim_last_name__icontains=search) | 
+                Q(perpetrator_first_name__icontains=search) | 
+                Q(perpetrator_middle_name__icontains=search) | 
+                Q(perpetrator_last_name__icontains=search) )
+
+        return qs
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

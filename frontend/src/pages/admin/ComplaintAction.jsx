@@ -432,18 +432,56 @@ export default function ComplaintAction() {
           </div>
           <div className="card-body">
             {alreadyReviewed ? (
-              <div
-                className="d-flex align-items-center gap-2"
-                style={{
-                  color: "var(--color-text-secondary)",
-                  fontSize: "0.875rem",
-                }}
-              >
-                <i
-                  className="ti ti-circle-check"
-                  style={{ color: "var(--color-approved)" }}
-                />
-                This complaint has already been reviewed.
+              <div>
+                <div
+                  className="d-flex align-items-center gap-2 mb-2"
+                  style={{
+                    color: "var(--color-text-secondary)",
+                    fontSize: "0.875rem",
+                  }}
+                >
+                  <i
+                    className="ti ti-circle-check"
+                    style={{ color: "var(--color-approved)" }}
+                  />
+                  This complaint has already been reviewed.
+                </div>
+
+                {c?.status && (
+                  <span
+                    className={`mb-2 badge ${STATUS_BADGE[c.status] ?? "badge-closed"}`}
+                  >
+                    {c.status?.replace("_", " ")}
+                  </span>
+                )}
+
+                {c?.comments[0]?.body && (
+                  <div
+                    className="d-flex gap-2"
+                    style={{
+                      borderLeft: "3px solid var(--color-approved)",
+                      background: "var(--color-surface-subtle, #f8f9fa)",
+                      borderRadius: "0.375rem",
+                      padding: "0.75rem 1rem",
+                    }}
+                  >
+                    <i
+                      className="ti ti-quote"
+                      style={{
+                        color: "var(--color-text-secondary)",
+                        fontSize: "1rem",
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: "0.875rem",
+                        color: "var(--color-text-primary, #212529)",
+                      }}
+                    >
+                      {c.comments[0].body}
+                    </span>
+                  </div>
+                )}
               </div>
             ) : (
               <>

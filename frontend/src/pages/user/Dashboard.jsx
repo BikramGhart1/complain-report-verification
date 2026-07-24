@@ -166,7 +166,7 @@ export default function UserDashboard() {
                   <th>Complaint ID</th>
                   <th>Title</th>
                   <th>Category</th>
-                  <th>Date</th>
+                  <th>Incident Date</th>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
@@ -220,14 +220,24 @@ export default function UserDashboard() {
                       <td style={{ maxWidth: 180 }} className="text-truncate">
                         {c.title}
                       </td>
-                      <td>{c.category}</td>
+                      {/* <td>{c.category}</td> */}
+                      <td>
+                        {Array.isArray(c.tags) &&
+                          c.tags.length > 0 &&
+                          c.tags.map((tag, index) => (
+                            <span key={index}>{tag.name}</span>
+                          ))}
+                      </td>
                       <td
                         style={{
                           fontFamily: "var(--font-mono)",
                           fontSize: "0.78rem",
                         }}
                       >
-                        {new Date(c.createdAt).toLocaleDateString()}
+                        {/* {new Date(c.created_at).toLocaleDateString()} */}
+                        {c.incident_date
+                          ? new Date(c.incident_date).toLocaleDateString()
+                          : "—"}
                       </td>
                       <td>
                         <span
