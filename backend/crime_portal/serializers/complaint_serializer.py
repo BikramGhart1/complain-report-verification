@@ -1,7 +1,9 @@
 from rest_framework import serializers
+from users.serializers.users import UserProfileSerializer
 from crime_portal.models import CrimeTag, Complaint, ComplaintComment
+from core.common.dynamic_serializer import DynamicFieldsModelSerializer
  
-class CrimeTagSerializer(serializers.ModelSerializer):
+class CrimeTagSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = CrimeTag
         fields = ["id", "name", "slug", "color_hex", "created_at"]
@@ -13,7 +15,7 @@ class CrimeTagSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
  
  
-class ComplaintCommentSerializer(serializers.ModelSerializer):
+class ComplaintCommentSerializer(DynamicFieldsModelSerializer):
     author_name = serializers.SerializerMethodField()
  
     class Meta:
@@ -28,7 +30,7 @@ class ComplaintCommentSerializer(serializers.ModelSerializer):
         return obj.author.get_full_name() or obj.author.email
  
  
-class ComplaintListSerializer(serializers.ModelSerializer):
+class ComplaintListSerializer(DynamicFieldsModelSerializer):
     tags = CrimeTagSerializer(many=True, read_only=True)
     filed_by = serializers.SerializerMethodField()
  
@@ -46,7 +48,7 @@ class ComplaintListSerializer(serializers.ModelSerializer):
         return obj.user.get_full_name() or obj.user.email
  
  
-class ComplaintDetailSerializer(serializers.ModelSerializer):
+class ComplaintDetailSerializer(DynamicFieldsModelSerializer):
     tags = CrimeTagSerializer(many=True, read_only=True)
     tag_ids = serializers.PrimaryKeyRelatedField(
         queryset=CrimeTag.objects.all(),
@@ -188,7 +190,7 @@ class ComplaintDetailSerializer(serializers.ModelSerializer):
         return instance
 
  
-class ComplaintStatusUpdateSerializer(serializers.ModelSerializer):
+class ComplaintStatusUpdateSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = Complaint
         fields = ["status"]
@@ -200,9 +202,48 @@ class ComplaintStatusUpdateSerializer(serializers.ModelSerializer):
         return value
  
 
-class AdminCommentSerializer(serializers.ModelSerializer):
+class AdminCommentSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = ComplaintComment
         fields = ["id", "body", "created_at"]
         read_only_fields = ["id", "created_at"]
- 
+
+
+class ComplaintOverviewSerializer(DynamicFieldsModelSerializer):
+    user = UserProfileSerializer(
+        read_only=True,
+        fields=[
+            "id",
+            "full_name",
+            "email",
+            "is_admin"
+        ]
+    )
+
+    tags = CrimeTagSerializer(
+        many=True,
+        read_only=True
+    )
+
+    total_complaints = serializers.IntegerField(read_only=True)
+    pending_count = serializers.IntegerField(read_only=True)
+    ongoing_count = serializers.IntegerField(read_only=True)
+    approved_count = serializers.IntegerField(read_only=True)
+    rejected_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Complaint
+        fields = [
+            "id",
+            "user",
+            "title",
+            "status",
+            "tags",
+            "created_at",
+            "total_complaints",
+            "pending_count",
+            "ongoing_count",
+            "approved_count",
+            "rejected_count",
+        ]
+    

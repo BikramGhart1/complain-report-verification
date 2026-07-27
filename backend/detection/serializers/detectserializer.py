@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from detection.models.detect import DetectionResult
+from core.common.dynamic_serializer import DynamicFieldsModelSerializer
 
-
-class DetectionResultSerializer(serializers.ModelSerializer):
+class DetectionResultSerializer(DynamicFieldsModelSerializer):
     image = serializers.ImageField(write_only=True, required=False)  
     heatmap_url = serializers.SerializerMethodField()
 

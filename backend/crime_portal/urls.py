@@ -1,5 +1,6 @@
 from django.urls import path
 from crime_portal.views.complaint_views import (
+    ComplaintOverviewViewSet,
     CrimeTagListCreateView,
     CrimeTagDetailView,
     ComplaintListCreateView,
@@ -11,6 +12,7 @@ from crime_portal.views.complaint_views import (
 from crime_portal.views.complaint_report_views import GenerateReportView, DownloadReportView
  
 urlpatterns = [
+    path("overview/",       ComplaintOverviewViewSet.as_view(), name="complaint-overview"),
     path("tags/",           CrimeTagListCreateView.as_view(), name="tag-list"),
     path("tags/<int:pk>/",  CrimeTagDetailView.as_view(),     name="tag-detail"),
  

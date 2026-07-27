@@ -1,9 +1,10 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from core.common.dynamic_serializer import DynamicFieldsModelSerializer
 
 User = get_user_model()
 
-class RegisterSerializer(serializers.ModelSerializer):
+class RegisterSerializer(DynamicFieldsModelSerializer):
     password   = serializers.CharField(write_only=True, min_length=8)
     first_name = serializers.CharField(required=True)
     last_name  = serializers.CharField(required=True)
@@ -29,7 +30,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
  
  
-class UserProfileSerializer(serializers.ModelSerializer):
+class UserProfileSerializer(DynamicFieldsModelSerializer):
     full_name = serializers.SerializerMethodField()
     role = serializers.SerializerMethodField()
  
