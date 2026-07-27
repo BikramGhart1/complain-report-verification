@@ -33,6 +33,7 @@ class User(AbstractUser):
     profile_picture = models.ImageField(upload_to='profiles/', null=True, blank=True)
     gender = models.CharField(max_length=20, choices=Gender.choices)
     phone_number = models.CharField(max_length=20, blank=True)
+    address = models.CharField(max_length=50, blank=True)
     is_admin = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'

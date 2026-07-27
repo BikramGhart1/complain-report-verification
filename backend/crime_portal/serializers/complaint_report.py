@@ -1,7 +1,8 @@
 from rest_framework import serializers
+from core.common.dynamic_serializer import DynamicFieldsModelSerializer
 from crime_portal.models import ComplaintReport
 
-class ComplaintReportSerializer(serializers.ModelSerializer):
+class ComplaintReportSerializer(DynamicFieldsModelSerializer):
     pdf_url = serializers.SerializerMethodField()
  
     class Meta:

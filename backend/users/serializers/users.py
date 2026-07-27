@@ -1,9 +1,10 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from core.common.dynamic_serializer import DynamicFieldsModelSerializer
 
 User = get_user_model()
 
-class RegisterSerializer(serializers.ModelSerializer):
+class RegisterSerializer(DynamicFieldsModelSerializer):
     password   = serializers.CharField(write_only=True, min_length=8)
     first_name = serializers.CharField(required=True)
     last_name  = serializers.CharField(required=True)
@@ -14,7 +15,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             "id", "email", "password",
             "first_name", "middle_name", "last_name",
             "citizenship_number", "profile_picture",
-            "gender", "phone_number"
+            "gender", "phone_number", "address"
         ]
         extra_kwargs = {
             "profile_picture": {"required": False},
@@ -29,7 +30,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
  
  
-class UserProfileSerializer(serializers.ModelSerializer):
+class UserProfileSerializer(DynamicFieldsModelSerializer):
     full_name = serializers.SerializerMethodField()
     role = serializers.SerializerMethodField()
  
@@ -37,7 +38,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             "id", "email",
-            "first_name", "middle_name", "last_name", "full_name",
+            "first_name", "middle_name", "last_name", "full_name", "address",
             "citizenship_number", "profile_picture", "is_admin", "role", "phone_number"
         ]
         read_only_fields = ["id", "citizenship_number", "is_admin", "role"]

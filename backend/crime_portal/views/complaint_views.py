@@ -1,9 +1,12 @@
 from rest_framework import generics, permissions
+from core.common.filter_backends import DynamicFilterBackend
+from django.db.models import Count, Q
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.shortcuts import get_object_or_404
 from crime_portal.permissions import IsAdmin, IsOwnerOrAdmin
 from crime_portal.models import CrimeTag, Complaint
 from crime_portal.serializers.complaint_serializer import (
+    ComplaintOverviewSerializer,
     CrimeTagSerializer,
     ComplaintListSerializer,
     ComplaintDetailSerializer,
@@ -11,7 +14,6 @@ from crime_portal.serializers.complaint_serializer import (
     AdminCommentSerializer,
 )
 from django.db.models import Q 
-
 
 
 class CrimeTagListCreateView(generics.ListCreateAPIView):
@@ -155,5 +157,73 @@ class ComplaintCommentCreateView(generics.CreateAPIView):
             complaint=complaint,
             author=self.request.user,
             is_admin_note=self.request.user.is_admin,
+        )
+
+
+class ComplaintOverviewViewSet(generics.ListAPIView):
+    queryset = Complaint.objects.all()
+    serializer_class = ComplaintOverviewSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    filter_backends = [DynamicFilterBackend]
+
+
+    filter_fields = [
+        "status",
+    ]
+
+    m2m_filter_fields = [
+        "tags",
+    ]
+
+    date_filter_fields = [
+        "created_at",
+        "incident_date",
+    ]
+
+    def get_queryset(self):
+        return (
+            Complaint.objects
+            .filter(user=self.request.user)
+            .select_related("user")
+            .prefetch_related("tags")
+            .annotate(
+                total_complaints=Count(
+                    "user__complaints",
+                    distinct=True
+                ),
+
+                pending_count=Count(
+                    "user__complaints",
+                    filter=Q(
+                        user__complaints__status="pending"
+                    ),
+                    distinct=True
+                ),
+
+                ongoing_count=Count(
+                    "user__complaints",
+                    filter=Q(
+                        user__complaints__status="ongoing"
+                    ),
+                    distinct=True
+                ),
+
+                approved_count=Count(
+                    "user__complaints",
+                    filter=Q(
+                        user__complaints__status="approved"
+                    ),
+                    distinct=True
+                ),
+
+                rejected_count=Count(
+                    "user__complaints",
+                    filter=Q(
+                        user__complaints__status="rejected"
+                    ),
+                    distinct=True
+                ),
+            )
         )
 
