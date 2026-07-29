@@ -43,7 +43,6 @@ const Sidebar = ({ role = "user", complaintCount }) => {
         zIndex: 100,
       }}
     >
-      {/* ── Brand ── */}
       <div className="d-flex align-items-start gap-2 p-3 pb-2">
         <div
           className="d-flex align-items-center justify-content-center flex-shrink-0 rounded"
@@ -63,7 +62,7 @@ const Sidebar = ({ role = "user", complaintCount }) => {
               color: "var(--color-text-primary)",
             }}
           >
-            AI Based 
+            AI Based
             <br />
             Cybercrime Reporting System
           </div>
@@ -84,7 +83,6 @@ const Sidebar = ({ role = "user", complaintCount }) => {
         style={{ borderColor: "var(--color-border)" }}
       />
 
-      {/* ── Nav ── */}
       <nav className="d-flex flex-column gap-1 p-2 flex-grow-1">
         {navItems.map(({ to, icon, label }) => (
           <NavLink
@@ -145,7 +143,7 @@ const Sidebar = ({ role = "user", complaintCount }) => {
                 role === "admin" ? "#1a3a5c" : "var(--color-text-secondary)",
             }}
           >
-            {user?.firstName?.charAt(0)?.toUpperCase() ??
+            {user?.first_name?.charAt(0)?.toUpperCase() ??
               (role === "admin" ? "A" : "U")}
           </div>
           <div style={{ overflow: "hidden" }}>
@@ -153,7 +151,7 @@ const Sidebar = ({ role = "user", complaintCount }) => {
               className="fw-semibold text-truncate"
               style={{ fontSize: "0.8rem", color: "var(--color-text-primary)" }}
             >
-              {[user?.firstName, user?.middleName, user?.lastName]
+              {[user?.first_name, user?.middle_name, user?.last_name]
                 .filter(Boolean)
                 .join(" ") || (role === "admin" ? "Admin" : "User")}
             </div>

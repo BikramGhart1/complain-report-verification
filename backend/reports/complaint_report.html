@@ -3,123 +3,152 @@
 <head>
 <meta charset="UTF-8">
 <style>
-  /* ── Reset ── */
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  /* ── Page ── */
   @page {
     size: A4;
-    margin: 18mm 16mm 20mm 16mm;
+    margin: 20mm 18mm 22mm 18mm;
     @top-center {
-      content: "CONFIDENTIAL — Crime Portal Report";
-      font-family: Arial, sans-serif;
+      content: "{% if for_admin %}CONFIDENTIAL — Internal Investigation Copy{% else %}Official Complaint Report{% endif %}";
+      font-family: Georgia, "Times New Roman", serif;
       font-size: 8pt;
-      color: #888;
+      color: #777;
+      letter-spacing: 0.3pt;
     }
-    @bottom-right {
+    @bottom-center {
       content: "Page " counter(page) " of " counter(pages);
-      font-family: Arial, sans-serif;
+      font-family: Georgia, "Times New Roman", serif;
       font-size: 8pt;
-      color: #aaa;
+      color: #999;
     }
   }
 
   body {
-    font-family: Arial, sans-serif;
-    font-size: 10pt;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 10.5pt;
     color: #1a1a1a;
-    line-height: 1.5;
+    line-height: 1.6;
   }
 
-  /* ── Header ── */
-  .doc-title   { font-size: 22pt; font-weight: bold; margin-bottom: 4pt; }
-  .doc-meta    { font-size: 9pt; color: #555; margin-bottom: 12pt; }
-  .doc-meta span { margin-right: 14pt; }
-  .doc-meta .highlight { color: #c0392b; font-weight: bold; }
-  hr.divider   { border: none; border-top: 2px solid #1a1a1a; margin-bottom: 18pt; }
+  /* ── Masthead ── */
+  .masthead {
+    text-align: center;
+    margin-bottom: 16pt;
+    padding-bottom: 12pt;
+    border-bottom: 2pt solid #1a1a1a;
+  }
+  .masthead .org-name {
+    font-size: 10pt;
+    letter-spacing: 1.5pt;
+    text-transform: uppercase;
+    color: #444;
+    margin-bottom: 6pt;
+  }
+  .masthead .doc-title {
+    font-size: 18pt;
+    font-weight: bold;
+    letter-spacing: 0.3pt;
+  }
+  .masthead .doc-subtitle {
+    font-size: 9pt;
+    color: #666;
+    margin-top: 3pt;
+    font-style: italic;
+  }
+
+  /* ── Reference block ── */
+  .ref-block {
+    display: table;
+    width: 100%;
+    margin-bottom: 16pt;
+    font-size: 9.5pt;
+  }
+  .ref-block .ref-row {
+    display: table-row;
+  }
+  .ref-block .ref-cell {
+    display: table-cell;
+    padding: 2pt 0;
+  }
+  .ref-block .ref-label {
+    width: 30%;
+    color: #666;
+  }
+  .ref-block .ref-value {
+    font-weight: bold;
+  }
 
   /* ── Section heading ── */
   .section-heading {
     font-size: 11pt;
     font-weight: bold;
-    border-left: 4px solid #2c3e50;
-    padding-left: 8pt;
-    margin: 18pt 0 10pt 0;
-    color: #2c3e50;
+    text-transform: uppercase;
+    letter-spacing: 0.5pt;
+    border-bottom: 1pt solid #1a1a1a;
+    padding-bottom: 4pt;
+    margin: 20pt 0 10pt 0;
   }
 
-  /* ── Data table (all field/value pairs) ── */
-  /* WeasyPrint renders tables reliably — no flex, no grid */
+  /* ── Data table ── */
   table.data-table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 6pt;
   }
   table.data-table td {
-    padding: 4pt 6pt;
+    padding: 5pt 6pt;
     vertical-align: top;
     font-size: 10pt;
+    border-bottom: 0.5pt solid #eee;
   }
   table.data-table td.label {
-    width: 38%;
+    width: 34%;
     color: #555;
-    font-weight: normal;
   }
   table.data-table td.value {
-    width: 62%;
+    width: 66%;
     color: #1a1a1a;
-    font-weight: bold;
   }
 
-  /* ── Status badge ── */
-  .badge {
-    display: inline-block;
-    padding: 2pt 8pt;
-    border-radius: 3pt;
-    font-size: 9pt;
+  /* ── Status — plain text, not a colored chip ── */
+  .status-value {
     font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.3pt;
   }
-  .badge-pending   { background: #fef3c7; color: #92400e; }
-  .badge-ongoing   { background: #dbeafe; color: #1e40af; }
-  .badge-on_hold   { background: #f3e8ff; color: #6b21a8; }
-  .badge-completed { background: #dcfce7; color: #166534; }
-  .badge-failed    { background: #fee2e2; color: #991b1b; }
 
   /* ── Description box ── */
   .description-box {
-    border: 1px solid #ddd;
-    border-radius: 4pt;
+    border: 0.5pt solid #ccc;
     padding: 10pt;
     font-size: 10pt;
-    color: #333;
+    color: #222;
     margin-bottom: 8pt;
+    background: #fdfdfd;
   }
 
-  /* ── Tags ── */
+  /* ── Tags — plain bordered labels, no color fills ── */
   .tag {
     display: inline-block;
-    padding: 2pt 7pt;
-    border-radius: 10pt;
+    padding: 1.5pt 7pt;
+    border: 0.5pt solid #999;
     font-size: 8pt;
-    font-weight: bold;
     margin-right: 4pt;
-    color: #fff;
+    color: #444;
   }
 
-  /* ── AI Analysis box ── */
+  /* ── AI Analysis ── */
   .ai-box {
-    border: 1px solid #c8d6e5;
-    border-radius: 4pt;
-    background: #f8fafc;
-    padding: 12pt;
+    border: 0.5pt solid #ccc;
+    padding: 10pt 12pt;
     margin-bottom: 12pt;
   }
-  .ai-verdict-fake          { color: #c0392b; font-weight: bold; }
-  .ai-verdict-likely_manipulated { color: #e67e22; font-weight: bold; }
-  .ai-verdict-authentic     { color: #27ae60; font-weight: bold; }
-  .ai-verdict-inconclusive  { color: #7f8c8d; font-weight: bold; }
+  .ai-verdict {
+    font-weight: bold;
+    text-transform: uppercase;
+  }
 
-  /* ── Image pair — table layout, WeasyPrint safe ── */
+  /* ── Image pair ── */
   table.image-pair {
     width: 100%;
     border-collapse: separate;
@@ -134,86 +163,96 @@
   table.image-pair img {
     max-width: 100%;
     max-height: 160pt;
-    border: 1px solid #ddd;
-    border-radius: 3pt;
+    border: 0.5pt solid #ccc;
   }
   table.image-pair .img-caption {
     font-size: 8pt;
     color: #777;
     margin-top: 4pt;
+    font-style: italic;
   }
 
   /* ── Comments ── */
   .comment-block {
-    border-left: 3px solid #bdc3c7;
+    border-left: 2pt solid #ccc;
     padding: 6pt 10pt;
     margin-bottom: 8pt;
-    background: #fafafa;
   }
   .comment-block.admin-note {
-    border-left-color: #2980b9;
-    background: #f0f7ff;
+    border-left-color: #444;
+    background: #f7f7f7;
   }
   .comment-meta {
     font-size: 8pt;
     color: #888;
     margin-bottom: 3pt;
   }
+  .comment-meta .tag-inline {
+    font-style: italic;
+  }
 
-  /* ── Footer ── */
+  /* ── Footer / certification ── */
   .footer-note {
     margin-top: 30pt;
-    font-size: 8pt;
-    color: #aaa;
-    border-top: 1px solid #eee;
+    font-size: 8.5pt;
+    color: #777;
+    border-top: 0.5pt solid #ccc;
     padding-top: 8pt;
+    text-align: center;
+    line-height: 1.5;
   }
 </style>
 </head>
 <body>
 
-<!-- ══ HEADER ══ -->
-<div class="doc-title">Crime Complaint Report</div>
-<div class="doc-meta">
-  <span>Case #{{ complaint.pk }}</span>
-  <span>|</span>
-  <span>Generated at: <span class="highlight">{{ report.created_at|date:"d M Y, H:i" }}</span></span>
+<!-- ══ MASTHEAD ══ -->
+<div class="masthead">
+  <div class="org-name">Crime Portal</div>
+  <div class="doc-title">Cybercrime Complaint Report</div>
+  <div class="doc-subtitle">
+    {% if for_admin %}Internal investigation copy — not for external distribution{% else %}Official record of your submitted complaint{% endif %}
+  </div>
 </div>
-<hr class="divider">
 
+<!-- ══ REFERENCE BLOCK ══ -->
+<div class="ref-block">
+  <div class="ref-row">
+    <div class="ref-cell ref-label">Case Reference</div>
+    <div class="ref-cell ref-value">#{{ complaint.pk }}</div>
+  </div>
+  <div class="ref-row">
+    <div class="ref-cell ref-label">Report Generated</div>
+    <div class="ref-cell ref-value">{{ report.created_at|date:"d F Y, H:i" }}</div>
+  </div>
+</div>
 
-<!-- ══ CASE OVERVIEW ══ -->
-<div class="section-heading">Case Overview</div>
+<!-- ══ 1. CASE OVERVIEW ══ -->
+<div class="section-heading">1. Case Overview</div>
 <table class="data-table">
   <tr>
     <td class="label">Status</td>
-    <td class="value">
-      <span class="badge badge-{{ complaint.status }}">{{ complaint.get_status_display }}</span>
-    </td>
+    <td class="value"><span class="status-value">{{ complaint.get_status_display }}</span></td>
   </tr>
   <tr>
     <td class="label">Filed</td>
-    <td class="value">{{ complaint.created_at|date:"d M Y, H:i" }}</td>
+    <td class="value">{{ complaint.created_at|date:"d F Y, H:i" }}</td>
   </tr>
   <tr>
     <td class="label">Last Updated</td>
-    <td class="value">{{ complaint.modified_at|date:"d M Y, H:i" }}</td>
+    <td class="value">{{ complaint.modified_at|date:"d F Y, H:i" }}</td>
   </tr>
   {% if complaint.tags.all %}
   <tr>
     <td class="label">Tags</td>
     <td class="value">
-      {% for tag in complaint.tags.all %}
-        <span class="tag" style="background-color: {{ tag.color_hex }};">{{ tag.name }}</span>
-      {% endfor %}
+      {% for tag in complaint.tags.all %}<span class="tag">{{ tag.name }}</span>{% endfor %}
     </td>
   </tr>
   {% endif %}
 </table>
 
-
-<!-- ══ COMPLAINANT INFORMATION ══ -->
-<div class="section-heading">Complainant Information</div>
+<!-- ══ 2. COMPLAINANT INFORMATION ══ -->
+<div class="section-heading">2. Complainant Information</div>
 <table class="data-table">
   {% if not complaint.is_anonymous %}
   <tr>
@@ -239,14 +278,13 @@
   {% else %}
   <tr>
     <td class="label">Identity</td>
-    <td class="value" style="color:#888; font-style:italic;">Anonymous Submission</td>
+    <td class="value" style="color:#888; font-style:italic;">Anonymous submission</td>
   </tr>
   {% endif %}
 </table>
 
-
-<!-- ══ INCIDENT DETAILS ══ -->
-<div class="section-heading">Incident Details</div>
+<!-- ══ 3. INCIDENT DETAILS ══ -->
+<div class="section-heading">3. Incident Details</div>
 <table class="data-table">
   <tr>
     <td class="label">Title</td>
@@ -255,7 +293,7 @@
   {% if complaint.incident_date %}
   <tr>
     <td class="label">Incident Date</td>
-    <td class="value">{{ complaint.incident_date|date:"d M Y" }}</td>
+    <td class="value">{{ complaint.incident_date|date:"d F Y" }}</td>
   </tr>
   {% endif %}
   <tr>
@@ -286,30 +324,24 @@
   </tr>
 </table>
 
-
-<!-- ══ COMPLAINT DESCRIPTION ══ -->
-<div class="section-heading">Complaint Description</div>
+<!-- ══ 4. COMPLAINT DESCRIPTION ══ -->
+<div class="section-heading">4. Complaint Description</div>
 <div class="description-box">{{ complaint.description }}</div>
 
-<br><br><br>
-
-<!-- ══ AI IMAGE ANALYSIS ══ -->
+<!-- ══ 5. AI-ASSISTED IMAGE ANALYSIS ══ -->
 {% if complaint.ai_model_version %}
-<div class="section-heading">AI Image Analysis</div>
+<div class="section-heading">5. AI-Assisted Image Analysis</div>
 <div class="ai-box">
   <table class="data-table">
     <tr>
-      <td class="label">AI Verdict</td>
-      <td class="value">
-        <span class="ai-verdict-{{ complaint.ai_verdict }}">
-          {{ complaint.get_ai_verdict_display|default:"—" }}
-        </span>
-      </td>
+      <td class="label">Verdict</td>
+      <td class="value"><span class="ai-verdict">{{ complaint.get_ai_verdict_display|default:"—" }}</span></td>
     </tr>
     <tr>
       <td class="label">Confidence Score</td>
       <td class="value">{{ complaint.ai_confidence|floatformat:1 }}%</td>
     </tr>
+    {% if for_admin %}
     <tr>
       <td class="label">LBP Score</td>
       <td class="value">{{ complaint.ai_lbp_score|floatformat:2|default:"—" }}</td>
@@ -326,8 +358,8 @@
       <td class="label">AI Flagged</td>
       <td class="value">{{ complaint.ai_flagged|yesno:"Yes,No,Pending" }}</td>
     </tr>
+    {% endif %}
   </table>
-  {% endif %}
 
   {% if evidence_url or heatmap_url %}
   <table class="image-pair">
@@ -338,30 +370,44 @@
         <div class="img-caption">Submitted evidence</div>
       </td>
       {% endif %}
+      {% if heatmap_url and for_admin %}
+      <td>
+        <img src="{{ heatmap_url }}" alt="AI analysis heatmap">
+        <div class="img-caption">AI manipulation heatmap</div>
+      </td>
+      {% endif %}
     </tr>
   </table>
   {% endif %}
-
-
-<!-- ══ COMMENTS ══ -->
-{% if comments %}
-<div class="section-heading">Comments</div>
-{% for comment in comments %}
-<div class="comment-block {% if comment.is_admin_note %}admin-note{% endif %}">
-  <div class="comment-meta">
-    {{ comment.author.full_name }} — {{ comment.created_at|date:"d M Y, H:i" }}
-    {% if comment.is_admin_note %} · <strong>Admin Note</strong>{% endif %}
-  </div>
-  <div>{{ comment.body }}</div>
 </div>
+{% endif %}
+
+<!-- ══ 6. CASE COMMENTS ══ -->
+{% if comments %}
+<div class="section-heading">6. Case Comments{% if not for_admin %} & Updates{% endif %}</div>
+{% for comment in comments %}
+  {% if for_admin or not comment.is_admin_note %}
+  <div class="comment-block {% if comment.is_admin_note %}admin-note{% endif %}">
+    <div class="comment-meta">
+      {{ comment.author.full_name }} — {{ comment.created_at|date:"d F Y, H:i" }}
+      {% if comment.is_admin_note %}<span class="tag-inline"> · Investigator note</span>{% endif %}
+    </div>
+    <div>{{ comment.body }}</div>
+  </div>
+  {% endif %}
 {% endfor %}
 {% endif %}
 
-
 <!-- ══ FOOTER ══ -->
 <div class="footer-note">
-  This report is confidential and intended solely for authorised investigative use.
-  Unauthorised disclosure is prohibited. <br> Generated by Crime Portal v1.0.
+  {% if for_admin %}
+    This document contains confidential investigative material and is restricted to authorised personnel only.
+    Unauthorised disclosure or distribution is strictly prohibited.
+  {% else %}
+    This report reflects the current status of your complaint as recorded by Crime Portal.
+    For questions regarding this case, please contact the case handling team.
+  {% endif %}
+  <br>Crime Portal — Cybercrime Complaint Reporting System
 </div>
 
 </body>

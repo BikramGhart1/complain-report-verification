@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
+  downloadComplaintReport,
   getComplaintById,
   reviewComplaint,
 } from "../../services/complaintService";
@@ -60,6 +61,7 @@ export default function ComplaintAction() {
   const [remarks, setRemarks] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState(INITIAL_FORM);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     getComplaintById(id)
@@ -115,6 +117,17 @@ export default function ComplaintAction() {
   const c = complaint;
   const alreadyReviewed = ["approved", "rejected", "closed"].includes(c.status);
 
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      await downloadComplaintReport(id);
+    } catch (err) {
+      toast.error(err.message || "Download failed");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <div className="fade-in">
       <style>{`
@@ -150,6 +163,20 @@ export default function ComplaintAction() {
           <span className={`badge ${STATUS_BADGE[c.status] ?? "badge-closed"}`}>
             {c.status?.replace("_", " ")}
           </span>
+          {(c?.status === "approved" || c?.status === "rejected") && (
+            <button
+              className="btn btn-primary btn-sm d-flex align-items-center gap-1"
+              onClick={handleDownload}
+              disabled={downloading}
+            >
+              {downloading ? (
+                <span className="spinner-border spinner-border-sm" />
+              ) : (
+                <i className="ti ti-download" />
+              )}
+              Download Report
+            </button>
+          )}
           <button
             className="btn btn-sm btn-outline-secondary"
             onClick={() => navigate("/admin/complaints")}
@@ -297,7 +324,6 @@ export default function ComplaintAction() {
                     display: "block",
                   }}
                 />
-                {/* hover overlay */}
                 <div
                   className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
                   style={{
@@ -327,7 +353,6 @@ export default function ComplaintAction() {
           </div>
         </div>
 
-        {/* ── Additional Information ── */}
         <div className="card mb-3">
           <div className="card-header">
             <i className="ti ti-info-circle me-2" />
@@ -344,7 +369,6 @@ export default function ComplaintAction() {
           </div>
         </div>
 
-        {/* ── Reporter Information ── */}
         <div className="card mb-3">
           <div className="card-header">
             <i className="ti ti-id-badge me-2" />
@@ -374,7 +398,6 @@ export default function ComplaintAction() {
           </div>
         </div>
 
-        {/* ── AI Analysis Report ── */}
         {c.ai_analysis.confidence && (
           <div className="card mb-3">
             <div className="card-header">
@@ -424,7 +447,6 @@ export default function ComplaintAction() {
           </div>
         )}
 
-        {/* ── Review Decision ── */}
         <div className="card mb-4">
           <div className="card-header">
             <i className="ti ti-gavel me-2" />

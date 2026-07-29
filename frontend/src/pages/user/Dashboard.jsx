@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { selectCurrentUser } from "../../features/auth/authSlice";
 import {
-  getUserDashboardStats,
+  getDashboardStats,
   getUserComplaints,
 } from "../../services/complaintService";
 import { toast } from "react-toastify";
@@ -42,8 +42,8 @@ export default function UserDashboard() {
     const load = async () => {
       try {
         const [statsResult, complaintsResult] = await Promise.allSettled([
-          getUserDashboardStats(),
-          getUserComplaints({ limit: 5 }),
+          getDashboardStats(),
+          getUserComplaints({ page_size: 5 }),
         ]);
 
         if (statsResult.status === "fulfilled") {
@@ -68,7 +68,6 @@ export default function UserDashboard() {
 
   return (
     <div className="fade-in">
-      {/* ── Page header ── */}
       <div className="mb-4">
         <h5
           className="fw-semibold mb-0"
@@ -86,7 +85,6 @@ export default function UserDashboard() {
         </small>
       </div>
 
-      {/* ── Stat cards ── */}
       <div className="row g-3 mb-4">
         {STAT_CARDS.map(({ key, label, icon }) => (
           <div className="col-6 col-xl-3" key={key}>
@@ -123,7 +121,6 @@ export default function UserDashboard() {
         ))}
       </div>
 
-      {/* ── Quick action ── */}
       <div className="card mb-4">
         <div className="card-body d-flex align-items-center justify-content-between p-3">
           <div>
@@ -147,7 +144,6 @@ export default function UserDashboard() {
         </div>
       </div>
 
-      {/* ── Recent complaints table ── */}
       <div className="card">
         <div className="card-header d-flex align-items-center justify-content-between">
           <span>Recent Reports</span>

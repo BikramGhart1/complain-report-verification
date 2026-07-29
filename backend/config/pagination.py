@@ -9,7 +9,7 @@ class CustomPagination(PageNumberPagination):
     def get_page_size(self, request):
         try:
             size = int(request.query_params.get("page_size", self.page_size))
-            if size in [10, 15, 25]:
+            if size in [5, 10, 15, 25]:
                 return size
         except (TypeError, ValueError):
             pass

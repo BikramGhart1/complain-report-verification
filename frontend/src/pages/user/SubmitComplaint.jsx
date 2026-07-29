@@ -64,10 +64,10 @@ export default function SubmitComplaint() {
       [name]: type === "checkbox" ? checked : value,
       ...(name === "isVictim" && checked
         ? {
-            victimFirstName: user?.firstName ?? "",
-            victimMiddleName: user?.middleName ?? "",
-            victimLastName: user?.lastName ?? "",
-            victimPhone: user?.phone ?? "",
+            victimFirstName: (user?.first_name ?? ""),
+            victimMiddleName: (user?.middle_name ?? ""),
+            victimLastName: (user?.last_name ?? ""),
+            victimPhone: (user?.phone_number ?? ""),
             relationToVictim: "Self",
           }
         : {}),
@@ -144,10 +144,6 @@ export default function SubmitComplaint() {
     }
   };
 
-  useEffect(() => {
-    console.log("form: ", form);
-  }, [form]);
-
   const selectedTagObjects = tags.filter((tag) => form.tagIds.includes(tag.id));
 
   const handleTagsChange = (selectedOptions) => {
@@ -217,32 +213,12 @@ export default function SubmitComplaint() {
                     getOptionLabel={(option) => option.name}
                     getOptionValue={(option) => option.id}
                   />
-                  {/* {tags.map((tag) => (
-                    <button
-                      key={tag.id}
-                      type="button"
-                      onClick={() => toggleTag(tag.id)}
-                      className="btn btn-sm btn-primary"
-                      // className={`btn btn-sm ${
-                      //   form.tagIds.includes(tag.id)
-                      //     ? "btn-primary"
-                      //     : "btn-outline-secondary"
-                      // }`}
-                    >
-                      {tag?.name}
-                    </button>
-                  ))} */}
                   {tags?.length === 0 && (
                     <small style={{ color: "var(--color-text-muted)" }}>
                       Loading categories...
                     </small>
                   )}
                 </div>
-                {/* {errors.tagIds && (
-                  <div className="invalid-feedback d-block mt-1">
-                    {errors.tagIds}
-                  </div>
-                )} */}
               </div>
 
               <div className="col-md-6">

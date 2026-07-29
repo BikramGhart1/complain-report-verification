@@ -7,6 +7,7 @@ from crime_portal.views.complaint_views import (
     FlaggedComplaintListView,
     ComplaintStatusUpdateView,
     ComplaintCommentCreateView,
+    DashboardStatsView
 )
 from crime_portal.views.complaint_report_views import GenerateReportView, DownloadReportView
  
@@ -24,5 +25,7 @@ urlpatterns = [
  
     path("<int:pk>/report/generate/", GenerateReportView.as_view(),    name="report-generate"),
     path("<int:pk>/report/download/", DownloadReportView.as_view(),    name="report-download"),
+
+    path('dashboard/stats/', DashboardStatsView.as_view(), name='dashboard-stats'),
 ]
  

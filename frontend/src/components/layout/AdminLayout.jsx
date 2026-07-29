@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../common/Sidebar';
-import { getAdminDashboardStats } from '../../services/complaintService';
+import { getDashboardStats } from '../../services/complaintService';
 
 function AdminLayout() {
   const [complaintCount, setComplaintCount] = useState(null);
 
   useEffect(() => {
-    getAdminDashboardStats()
+    getDashboardStats()
       .then(s => setComplaintCount(s?.total ?? null))
       .catch(() => {});
   }, []);

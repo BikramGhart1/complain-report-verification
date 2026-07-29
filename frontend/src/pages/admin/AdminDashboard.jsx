@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { selectCurrentUser } from "../../features/auth/authSlice";
 import {
-  getAdminDashboardStats,
+  getDashboardStats,
   getAdminComplaints,
 } from "../../services/complaintService";
 import { toast } from "react-toastify";
@@ -42,7 +42,7 @@ export default function AdminDashboard() {
     const load = async () => {
       try {
         const [statsResult, complaintsResult] = await Promise.allSettled([
-          getAdminDashboardStats(),
+          getDashboardStats(),
           getAdminComplaints({ limit: 5 }),
         ]);
 
@@ -67,7 +67,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="fade-in">
-      {/* ── Page header ── */}
       <div className="mb-4">
         <h5
           className="fw-semibold mb-0"
@@ -85,7 +84,6 @@ export default function AdminDashboard() {
         </small>
       </div>
 
-      {/* ── Stat cards ── */}
       <div className="row g-3 mb-4">
         {STAT_CARDS.map(({ key, label, icon }) => (
           <div className="col-6 col-xl-3" key={key}>
@@ -122,7 +120,6 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* ── Recent complaints table ── */}
       <div className="card">
         <div className="card-header d-flex align-items-center justify-content-between">
           <span>Recent Reports</span>

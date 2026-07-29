@@ -226,4 +226,3 @@ class AdminCommentSerializer(serializers.ModelSerializer):
         model = ComplaintComment
         fields = ["id", "body", "created_at"]
         read_only_fields = ["id", "created_at"]
- 

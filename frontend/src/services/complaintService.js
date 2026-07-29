@@ -1,32 +1,16 @@
-// ── USER DASHBOARD & COMPLAINTS ───────────────────────────────────────────────
 import { toast } from "react-toastify";
 import axiosInstance from "../api/axiosInstance";
 
-export const getUserDashboardStats = async () => {
-  const { data } = await axiosInstance.get("/complaints/stats/user/");
-  // Expected: { total, underReview, forwarded, closed }
+//USER
+
+export const getDashboardStats = async () => {
+  const { data } = await axiosInstance.get('complaints/dashboard/stats/');
   return data;
 };
 
-// export const getUserComplaints = async ({
-//   page = 1,
-//   limit = 10,
-//   status = "",
-//   search = "",
-// } = {}) => {
-//   const params = new URLSearchParams({ page, limit });
-//   if (status) params.append("status", status);
-//   if (search) params.append("search", search);
-//   // const { data } = await axiosInstance.get(`/complaints/my?${params}/`);
-//   const { data } = await axiosInstance.get(`/complaints/`);
-//   // Expected: { complaints: [...], total, page, limit }
-//   console.log("data: ", data);
-//   return data;
-// };
-
 export const getUserComplaints = async ({
   page = 1,
-  limit = 5,
+  page_size = 10,
   status = "",
   category = "",
   fromDate = "",
@@ -34,7 +18,7 @@ export const getUserComplaints = async ({
   search = "",
   aiFlagged ="",
 } = {}) => {
-  const params = new URLSearchParams({ page, limit });
+  const params = new URLSearchParams({ page, page_size });
   if (status) params.append("status", status);
   if (category) params.append("category", category);
   if (fromDate) params.append("fromDate", fromDate);
@@ -71,9 +55,8 @@ export const submitComplaint = async (form, evidenceFile) => {
     `${form.suspectPlatform} — ${form.suspectProfileUrl}`.trim(),
   );
 
-  // tags is ManyToMany — send as multiple entries
   if (form.tagIds?.length) {
-    form.tagIds.forEach((id) => fd.append("tags", id));
+    form.tagIds.forEach((id) => fd.append("tag_ids", id));
   }
 
   if (evidenceFile) {
@@ -89,17 +72,11 @@ export const getTags = async () => {
   return data; // [{ id, name }, ...]
 };
 
-// ── ADMIN DASHBOARD & COMPLAINTS ──────────────────────────────────────────────
-
-export const getAdminDashboardStats = async () => {
-  const { data } = await axiosInstance.get("/admin/complaints/stats/");
-  // Expected: { total, underReview, forwarded, closed }
-  return data;
-};
+// ADMIN 
 
 export const getAdminComplaints = async ({
   page = 1,
-  limit = 30,
+  page_size = 10,
   status = "",
   category = "",
   fromDate = "",
@@ -107,7 +84,7 @@ export const getAdminComplaints = async ({
   search = "",
   aiFlagged = "",
 } = {}) => {
-  const params = new URLSearchParams({ page, limit });
+  const params = new URLSearchParams({ page, page_size });
   if (status) params.append("status", status);
   if (category) params.append("category", category);
   if (fromDate) params.append("fromDate", fromDate);
@@ -116,13 +93,12 @@ export const getAdminComplaints = async ({
 
   if (search) params.append("search", search);
   const { data } = await axiosInstance.get(`/complaints?${params}`);
-  // Expected: { complaints: [...], total, page, limit }
   return data;
 };
 
 export const updateComplaintStatus = async (id, status) => {
   const { data } = await axiosInstance.patch(`/complaints/${id}/status/`, {
-    status, // "approved" | "rejected"
+    status, 
   });
   return data;
 };
@@ -148,18 +124,9 @@ export const reviewComplaint = async (id, { decision, remarks }) => {
   }
 };
 
-// export const reviewComplaint = async (id, { decision, remarks }) => {
-//   const { data } = await axiosInstance.post(`/admin/complaints/${id}/review/`, {
-//     decision, // 'approve' | 'reject'
-//     remarks,
-//   });
-//   return data;
-// };
-
-// ── REPORT ────────────────────────────────────────────────────────────────────
-
+// REPORT
 export const downloadComplaintReport = async (id) => {
-  const response = await axiosInstance.get(`/complaints/${id}/report/`, {
+  const response = await axiosInstance.get(`/complaints/${id}/report/download/`, {
     responseType: "blob",
   });
   const url = window.URL.createObjectURL(new Blob([response.data]));

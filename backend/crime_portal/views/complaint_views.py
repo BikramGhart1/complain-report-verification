@@ -10,7 +10,9 @@ from crime_portal.serializers.complaint_serializer import (
     ComplaintStatusUpdateSerializer,
     AdminCommentSerializer,
 )
-from django.db.models import Q 
+from django.db.models import Q, Count 
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
 
@@ -157,3 +159,21 @@ class ComplaintCommentCreateView(generics.CreateAPIView):
             is_admin_note=self.request.user.is_admin,
         )
 
+class DashboardStatsView(APIView):
+    """
+    GET /dashboard/stats/
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        qs = Complaint.objects.all() if user.is_admin else Complaint.objects.filter(user=user)
+
+        counts = qs.aggregate(
+            total=Count("id"),
+            pending=Count("id", filter=Q(status="pending")),
+            ongoing=Count("id", filter=Q(status="ongoing")),
+            closed=Count("id", filter=Q(status__in=["approved", "rejected"])),
+        )
+
+        return Response(counts)

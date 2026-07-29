@@ -29,26 +29,20 @@ export const restoreSessionThunk = createAsyncThunk(
   'auth/restoreSession',
   async () => {
     const stored = loadFromStorage();
-    console.log('stored:', stored);
     
     if (!stored.accessToken || !stored.user) {
-      console.log('no stored session');
       return { user: null, accessToken: null, refreshToken: null };
     }
 
     try {
       const payload = JSON.parse(atob(stored.accessToken.split('.')[1]));
       const isExpired = payload.exp * 1000 < Date.now();
-      console.log('token expired?', isExpired);
-      console.log('has refresh token?', !!stored.refreshToken);
 
       if (isExpired && stored.refreshToken) {
-        console.log('attempting refresh...');
         const { data } = await axios.post(
           `${import.meta.env.VITE_API_BASE_URL}/auth/refresh/`,
           { refresh: stored.refreshToken }
         );
-        console.log('refresh response:', data);
         const newAccessToken = data.access;
         localStorage.setItem('accessToken', newAccessToken);
         return {
@@ -58,7 +52,6 @@ export const restoreSessionThunk = createAsyncThunk(
         };
       }
     } catch(e) {
-      console.log('refresh failed:', e);
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');

@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import Pagination from "./Pagination";
 
 const STATUS_BADGE = {
   pending: "badge-pending",
@@ -22,14 +23,14 @@ const CATEGORIES = [
   "Other",
 ];
 
-const LIMIT = 5;
+const PAGE_SIZE = 10;
 
 export default function ComplaintTable({ fetchFn, actionLabel, actionPath }) {
   const navigate = useNavigate();
 
   const [complaints, setComplaints] = useState([]);
-  const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
+  const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   const [filters, setFilters] = useState({
@@ -46,11 +47,9 @@ export default function ComplaintTable({ fetchFn, actionLabel, actionPath }) {
     async (params) => {
       setLoading(true);
       try {
-        const data = await fetchFn({ ...params, page, limit: LIMIT });
-        // setComplaints(data.complaints ?? []);
-        // console.log("data: ",data);
+        const data = await fetchFn({ ...params, page, page_size: PAGE_SIZE });
         setComplaints(data.results ?? []);
-        setTotal(data.total ?? 0);
+        setCount(data.count ?? 0);
       } catch (err) {
         toast.error(err.message || "Failed to load complaints");
       } finally {
@@ -83,15 +82,8 @@ export default function ComplaintTable({ fetchFn, actionLabel, actionPath }) {
     setPage(1);
   };
 
-  const totalPages = Math.ceil(total / LIMIT);
-
-  // useEffect(()=>{
-  //   console.log("complaints: ",complaints);
-  // },[complaints])
-
   return (
     <div className="fade-in">
-      {/* ── Filter bar ── */}
       <div className="card mb-3">
         <div className="card-body">
           <div className="row g-2 align-items-end">
@@ -183,9 +175,7 @@ export default function ComplaintTable({ fetchFn, actionLabel, actionPath }) {
         </div>
       </div>
 
-      {/* ── Table card ── */}
       <div className="card">
-        {/* Search */}
         <div className="card-body pb-0">
           <div className="d-flex justify-content-end">
             <div className="input-group" style={{ maxWidth: 260 }}>
@@ -315,52 +305,14 @@ export default function ComplaintTable({ fetchFn, actionLabel, actionPath }) {
               </tbody>
             </table>
           </div>
+
+          <Pagination
+            page={page}
+            count={count}
+            pageSize={PAGE_SIZE}
+            onPageChange={setPage}
+          />
         </div>
-
-        {/* Footer — count + pagination */}
-        {/* <div className="card-body pt-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
-          <small style={{ color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>
-            {loading ? '—' : `${Math.min((page - 1) * LIMIT + 1, total)}–${Math.min(page * LIMIT, total)} of ${total} entries`}
-          </small>
-
-          {totalPages > 1 && (
-            <nav>
-              <ul className="pagination pagination-sm mb-0">
-                <li className={`page-item ${page === 1 ? 'disabled' : ''}`}>
-                  <button className="page-link" onClick={() => setPage(1)}>
-                    <i className="ti ti-chevrons-left" />
-                  </button>
-                </li>
-                <li className={`page-item ${page === 1 ? 'disabled' : ''}`}>
-                  <button className="page-link" onClick={() => setPage(p => p - 1)}>
-                    <i className="ti ti-chevron-left" />
-                  </button>
-                </li>
-
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const start = Math.max(1, Math.min(page - 2, totalPages - 4));
-                  const n = start + i;
-                  return (
-                    <li key={n} className={`page-item ${page === n ? 'active' : ''}`}>
-                      <button className="page-link" onClick={() => setPage(n)}>{n}</button>
-                    </li>
-                  );
-                })}
-
-                <li className={`page-item ${page === totalPages ? 'disabled' : ''}`}>
-                  <button className="page-link" onClick={() => setPage(p => p + 1)}>
-                    <i className="ti ti-chevron-right" />
-                  </button>
-                </li>
-                <li className={`page-item ${page === totalPages ? 'disabled' : ''}`}>
-                  <button className="page-link" onClick={() => setPage(totalPages)}>
-                    <i className="ti ti-chevrons-right" />
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          )}
-        </div> */}
       </div>
     </div>
   );

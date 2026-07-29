@@ -102,7 +102,6 @@ export default function ComplaintTracking() {
 
   return (
     <div className="fade-in">
-      {/* Page header */}
       <div className="d-flex align-items-start justify-content-between mb-4 flex-wrap gap-2">
         <div>
           <h5
@@ -127,18 +126,20 @@ export default function ComplaintTracking() {
           >
             <i className="ti ti-arrow-left me-1" /> Back
           </button>
-          <button
-            className="btn btn-primary btn-sm d-flex align-items-center gap-1"
-            onClick={handleDownload}
-            disabled={downloading}
-          >
-            {downloading ? (
-              <span className="spinner-border spinner-border-sm" />
-            ) : (
-              <i className="ti ti-download" />
-            )}
-            Download Report
-          </button>
+          {(c?.status === "approved" || c?.status === "rejected") && (
+            <button
+              className="btn btn-primary btn-sm d-flex align-items-center gap-1"
+              onClick={handleDownload}
+              disabled={downloading}
+            >
+              {downloading ? (
+                <span className="spinner-border spinner-border-sm" />
+              ) : (
+                <i className="ti ti-download" />
+              )}
+              Download Report
+            </button>
+          )}
         </div>
       </div>
 
@@ -219,7 +220,6 @@ export default function ComplaintTracking() {
           );
         })}
       </div>
-      {/* ── Main grid ── */}
       <div className="row g-3 mb-3">
         <div className="col-md-6">
           <div className="card h-100">
@@ -267,7 +267,6 @@ export default function ComplaintTracking() {
           </div>
         </div>
 
-        {/* Complaint Details */}
         <div className="col-md-6">
           <div className="card h-100">
             <div className="card-header d-flex align-items-center gap-2">
@@ -314,7 +313,6 @@ export default function ComplaintTracking() {
       </div>
 
       <div className="row g-3 mb-3">
-        {/* Evidence */}
         <div className="col-md-6">
           <div className="card h-100">
             <div className="card-header d-flex align-items-center gap-2">
@@ -383,98 +381,9 @@ export default function ComplaintTracking() {
                 </span>
               )}
             </div>
-
-            {/* <div className="card-body d-flex flex-column gap-2">
-              {c.evidence.image_url ? (
-                <a
-                  href={c.evidence.image_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="d-flex align-items-center gap-3 p-2 rounded text-decoration-none"
-                  style={{
-                    border: "1px solid var(--color-border)",
-                    background: "var(--color-surface-2)",
-                    transition: "border-color var(--transition)",
-                  }}
-                >
-                  <div
-                    className="rounded overflow-hidden flex-shrink-0"
-                    style={{
-                      width: 48,
-                      height: 48,
-                      background: "var(--color-surface-3)",
-                    }}
-                  >
-                    <img
-                      src={c.evidence.image_url}
-                      alt="evidence"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
-                    />
-                  </div>
-
-                  <small
-                    style={{
-                      color: "var(--color-text-secondary)",
-                      fontFamily: "var(--font-mono)",
-                    }}
-                  >
-                    evidence.png
-                  </small>
-
-                  <i
-                    className="ti ti-external-link ms-auto"
-                    style={{
-                      color: "var(--color-text-muted)",
-                      fontSize: 14,
-                    }}
-                  />
-                </a>
-              ) : (
-                <span
-                  style={{
-                    color: "var(--color-text-muted)",
-                    fontSize: "0.875rem",
-                  }}
-                >
-                  No evidence uploaded
-                </span>
-              )}
-            </div> */}
-            {/* <div className="card-body d-flex flex-column gap-2">
-              {c.evidence?.length > 0
-                ? c.evidence.map((url, i) => (
-                    <a key={i} href={url} target="_blank" rel="noreferrer"
-                      className="d-flex align-items-center gap-3 p-2 rounded text-decoration-none"
-                      style={{
-                        border: '1px solid var(--color-border)',
-                        background: 'var(--color-surface-2)',
-                        transition: 'border-color var(--transition)',
-                      }}>
-                      <div className="rounded overflow-hidden flex-shrink-0"
-                        style={{ width: 48, height: 48, background: 'var(--color-surface-3)' }}>
-                        <img src={url} alt={`evidence-${i + 1}`}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      </div>
-                      <small style={{ color: 'var(--color-text-secondary)', fontFamily: 'var(--font-mono)' }}>
-                        screenshot{i + 1}.png
-                      </small>
-                      <i className="ti ti-external-link ms-auto"
-                        style={{ color: 'var(--color-text-muted)', fontSize: 14 }} />
-                    </a>
-                  ))
-                : <span style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>
-                    No evidence uploaded
-                  </span>
-              }
-            </div> */}
           </div>
         </div>
 
-        {/* AI Analysis */}
         <div className="col-md-6">
           <div className="card h-100">
             <div className="card-header d-flex align-items-center gap-2">
@@ -515,10 +424,6 @@ export default function ComplaintTracking() {
                     }
                   />
                   <InfoRow label="LBP Score" value={c.ai_analysis.lbp_score} />
-                  {/* <InfoRow
-                    label="Recommendation"
-                    value={c.ai_recommended_decision}
-                  /> */}
                 </>
               ) : (
                 <span
@@ -535,7 +440,6 @@ export default function ComplaintTracking() {
         </div>
       </div>
 
-      {/* Admin Review */}
       <div className="card mb-4">
         <div className="card-header d-flex align-items-center gap-2">
           <div
@@ -550,7 +454,7 @@ export default function ComplaintTracking() {
           Admin Review
         </div>
         <div className="card-body">
-          {c.comments.length>0 ? (
+          {c.comments.length > 0 ? (
             <>
               <InfoRow
                 label="Decision"
