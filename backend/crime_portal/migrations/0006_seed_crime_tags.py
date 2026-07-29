@@ -5,7 +5,10 @@ TAGS = [
     ("Hacking", "hacking", "#6366f1"),
     ("Cyberbullying", "cyberbullying", "#f59e0b"),
     ("Identity Theft", "identity-theft", "#8b5cf6"),
-    # ...
+    ("Phising", "phising", "#f59e0b"),
+    ("Ransomware", "ransomware","#f59e0b"),
+    ("Malware","malware","#f59e0b"),
+    ("Data Breaches","data-breaches", "#f59e0b"),
 ]
 
 def seed(apps, schema_editor):

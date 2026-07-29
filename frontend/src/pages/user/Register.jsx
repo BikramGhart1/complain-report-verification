@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setCredentials } from "../../features/auth/authSlice";
+// import { setCredentials } from "../../features/auth/authSlice";
 import { registerUser } from "../../services/authService";
 
 import { toast } from "react-toastify";

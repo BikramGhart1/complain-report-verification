@@ -67,7 +67,7 @@ export default function SubmitComplaint() {
             victimFirstName: (user?.first_name ?? ""),
             victimMiddleName: (user?.middle_name ?? ""),
             victimLastName: (user?.last_name ?? ""),
-            victimPhone: (user?.phone_number ?? ""),
+            victimPhone: (user?.phone ?? ""),
             relationToVictim: "Self",
           }
         : {}),
